@@ -1,37 +1,66 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { leaguesApi } from "@/api/client";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
+import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Trash2, Trophy } from "lucide-react";
+import type { League } from "@/types";
+
+function getLeagueRoute(league: League): string {
+  if (league.status === "DRAFT") {
+    if (league.team_count < 2) return `/leagues/${league.id}/setup/teams`;
+    return `/leagues/${league.id}/setup/players`;
+  }
+  return `/leagues/${league.id}`;
+}
 
 export default function Home() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
   const setCurrentLeagueId = useLeagueStore((s) => s.setCurrentLeagueId);
+  const [deleteLeague, setDeleteLeague] = useState<League | null>(null);
+
   const { data: leagues, isLoading } = useQuery({
     queryKey: ["leagues"],
     queryFn: leaguesApi.list,
   });
 
-  const loadLeague = (id: number) => {
-    setCurrentLeagueId(id);
-    navigate(`/leagues/${id}`);
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => leaguesApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leagues"] });
+      toast("League deleted", "success");
+      setDeleteLeague(null);
+    },
+    onError: (err) => toast(getErrorMessage(err), "error"),
+  });
+
+  const loadLeague = (league: League) => {
+    setCurrentLeagueId(league.id);
+    navigate(getLeagueRoute(league));
   };
 
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 p-6">
       <div className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-primary">
-          Football League Portal
-        </h1>
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+          <Trophy className="h-7 w-7 text-primary" />
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight">Football League</h1>
         <p className="mt-2 text-muted-foreground">
           Create, manage, and track your football leagues
         </p>
@@ -55,20 +84,32 @@ export default function Home() {
             <div className="max-h-80 space-y-2 overflow-y-auto">
               {isLoading ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
+                  <Skeleton key={i} className="h-14 w-full rounded-lg" />
                 ))
               ) : leagues && leagues.length > 0 ? (
                 leagues.map((league) => (
-                  <button
+                  <div
                     key={league.id}
-                    onClick={() => loadLeague(league.id)}
-                    className="w-full rounded-md border border-border p-3 text-left transition-colors hover:border-primary hover:bg-secondary"
+                    className="flex items-center gap-2 rounded-lg border border-border transition-colors hover:border-primary"
                   >
-                    <p className="font-medium">{league.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {league.venue} · {league.team_count} teams
-                    </p>
-                  </button>
+                    <button
+                      onClick={() => loadLeague(league)}
+                      className="min-w-0 flex-1 p-4 text-left hover:bg-secondary"
+                    >
+                      <p className="font-medium">{league.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {league.venue} · {league.team_count} teams · {league.status}
+                      </p>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mr-2 shrink-0 text-destructive hover:text-destructive"
+                      onClick={() => setDeleteLeague(league)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">
@@ -80,15 +121,40 @@ export default function Home() {
         </Dialog>
       </div>
 
-      <Card className="w-full">
+      <Card className="w-full border-border/60">
         <CardHeader>
           <CardTitle className="text-base">Quick Start</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Create a league, add teams and players, configure the format, generate
+          Create a league, add teams and players, configure settings, generate
           fixtures, and manage matches with live scoring.
         </CardContent>
       </Card>
+
+      <Dialog open={!!deleteLeague} onOpenChange={(o) => !o && setDeleteLeague(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete League</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete{" "}
+              <span className="font-medium text-foreground">{deleteLeague?.name}</span>?
+              All teams, players, matches, and stats will be permanently removed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteLeague(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteLeague && deleteMutation.mutate(deleteLeague.id)}
+              disabled={deleteMutation.isPending}
+            >
+              Delete League
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

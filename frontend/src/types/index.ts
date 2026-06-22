@@ -1,4 +1,5 @@
 export type LeagueFormat = "SINGLE_ROUND_ROBIN" | "DOUBLE_ROUND_ROBIN";
+export type LeagueStatus = "DRAFT" | "ACTIVE" | "COMPLETED";
 
 export type PlayerPosition =
   | "GOALKEEPER"
@@ -15,8 +16,14 @@ export interface League {
   name: string;
   venue: string;
   format: LeagueFormat;
+  status: LeagueStatus;
+  points_win: number;
+  points_draw: number;
   created_at: string;
   team_count: number;
+  player_count: number;
+  matches_played: number;
+  matches_remaining: number;
 }
 
 export interface Team {
@@ -24,21 +31,27 @@ export interface Team {
   league: number;
   name: string;
   logo: string | null;
+  jersey_color: string;
   created_at: string;
   player_count: number;
+  captain_name: string | null;
 }
 
 export interface Player {
   id: number;
   team: number;
+  team_name: string;
   name: string;
   position: PlayerPosition;
   is_captain: boolean;
+  is_vice_captain: boolean;
+  is_inactive: boolean;
   goals: number;
   assists: number;
   yellow_cards: number;
   red_cards: number;
   clean_sheets: number;
+  has_match_history: boolean;
   created_at: string;
 }
 
@@ -67,6 +80,8 @@ export interface Match {
   scheduled_date: string | null;
   started_at: string | null;
   ended_at: string | null;
+  home_jersey_color: string;
+  away_jersey_color: string;
   events: MatchEvent[];
 }
 
@@ -102,4 +117,13 @@ export interface PaginatedResponse<T> {
   next: string | null;
   previous: string | null;
   results: T[];
+}
+
+export interface FixturePreview {
+  fixture_count: number;
+}
+
+export interface GenerateFixturesResponse {
+  fixture_count: number;
+  matches: Match[];
 }

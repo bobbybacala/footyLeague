@@ -33,3 +33,22 @@ body {
   color: var(--color-foreground);
   font-family: system-ui, -apple-system, sans-serif;
 }
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-muted-foreground) 40%, transparent)
+    transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
+  border-radius: 9999px;
+}

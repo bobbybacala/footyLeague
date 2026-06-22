@@ -6,7 +6,9 @@ from apps.matches.views import (
     LeagueMatchListView,
     MatchDetailView,
     RedCardView,
+    RemoveEventView,
     StartMatchView,
+    UndoLastEventView,
     YellowCardView,
 )
 
@@ -17,6 +19,12 @@ urlpatterns = [
     path("<int:pk>/yellow-card/", YellowCardView.as_view(), name="match-yellow-card"),
     path("<int:pk>/red-card/", RedCardView.as_view(), name="match-red-card"),
     path("<int:pk>/end/", EndMatchView.as_view(), name="match-end"),
+    path("<int:pk>/undo/", UndoLastEventView.as_view(), name="match-undo"),
+    path(
+        "<int:pk>/events/<int:event_pk>/remove/",
+        RemoveEventView.as_view(),
+        name="match-remove-event",
+    ),
     path(
         "leagues/<int:league_pk>/matches/",
         LeagueMatchListView.as_view(),

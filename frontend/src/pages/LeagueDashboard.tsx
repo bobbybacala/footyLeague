@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { leaguesApi, matchesApi, getErrorMessage } from "@/api/client";
-import { useToast } from "@/components/ui/toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { leaguesApi } from "@/api/client";
 import { PointsTable } from "@/components/points-table/PointsTable";
 import { MatchCard } from "@/components/match-card/MatchCard";
 import { AwardsPanel } from "@/components/awards-panel/AwardsPanel";
 import { FixtureCard } from "@/components/fixture-card/FixtureCard";
+import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
 import { EventTimeline } from "@/components/match-card/EventTimeline";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +23,8 @@ export default function LeagueDashboard() {
   const leagueId = Number(id);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+  const [confirmMatchId, setConfirmMatchId] = useState<number | null>(null);
 
   const { data: league, isLoading: leagueLoading } = useQuery({
     queryKey: ["league", leagueId],
@@ -56,15 +56,13 @@ export default function LeagueDashboard() {
     enabled: !!leagueId,
   });
 
-  const startMutation = useMutation({
-    mutationFn: (matchId: number) => matchesApi.start(matchId),
-    onSuccess: (match) => {
-      queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
-      toast("Match started!", "success");
-      navigate(`/matches/${match.id}`);
-    },
-    onError: (err) => toast(getErrorMessage(err), "error"),
-  });
+  const handleMatchStarted = (match: Match) => {
+    queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
+    setConfirmMatchId(null);
+    navigate(`/matches/${match.id}`);
+  };
+
+  const confirmMatch = pendingMatches?.find((m) => m.id === confirmMatchId);
 
   if (leagueLoading) {
     return (
@@ -132,8 +130,7 @@ export default function LeagueDashboard() {
               <FixtureCard
                 key={match.id}
                 match={match}
-                onStart={(matchId) => startMutation.mutate(matchId)}
-                isStarting={startMutation.isPending}
+                onStart={setConfirmMatchId}
               />
             ))}
           </div>
@@ -143,6 +140,14 @@ export default function LeagueDashboard() {
           </p>
         )}
       </div>
+
+      <StartMatchDialog
+        match={confirmMatch ?? null}
+        leagueId={leagueId}
+        open={!!confirmMatchId}
+        onOpenChange={(open) => !open && setConfirmMatchId(null)}
+        onStarted={handleMatchStarted}
+      />
 
       <Dialog
         open={!!selectedMatch}

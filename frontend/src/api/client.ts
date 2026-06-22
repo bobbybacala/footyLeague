@@ -1,6 +1,8 @@
 import axios from "axios";
 import type {
   Awards,
+  FixturePreview,
+  GenerateFixturesResponse,
   League,
   LeagueFormat,
   Match,
@@ -42,9 +44,22 @@ export const leaguesApi = {
   },
   update: async (
     id: number,
-    payload: Partial<{ name: string; venue: string; format: LeagueFormat }>
+    payload: Partial<{
+      name: string;
+      venue: string;
+      format: LeagueFormat;
+      points_win: number;
+      points_draw: number;
+    }>
   ): Promise<League> => {
     const { data } = await api.patch<League>(`/leagues/${id}/`, payload);
+    return data;
+  },
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/leagues/${id}/`);
+  },
+  conclude: async (id: number): Promise<League> => {
+    const { data } = await api.post<League>(`/leagues/${id}/conclude/`);
     return data;
   },
   standings: async (id: number): Promise<StandingRow[]> => {
@@ -55,18 +70,27 @@ export const leaguesApi = {
     const { data } = await api.get<Awards>(`/leagues/${id}/awards/`);
     return data;
   },
-  matches: async (
-    id: number,
-    status?: string
-  ): Promise<Match[]> => {
+  players: async (id: number): Promise<Player[]> => {
+    const { data } = await api.get<Player[] | PaginatedResponse<Player>>(
+      `/leagues/${id}/players/`
+    );
+    return unwrapList(data);
+  },
+  matches: async (id: number, status?: string): Promise<Match[]> => {
     const { data } = await api.get<Match[] | PaginatedResponse<Match>>(
       `/matches/leagues/${id}/matches/`,
       { params: status ? { status } : undefined }
     );
     return unwrapList(data);
   },
-  generateFixtures: async (id: number): Promise<Match[]> => {
-    const { data } = await api.post<Match[]>(
+  fixturePreview: async (id: number): Promise<FixturePreview> => {
+    const { data } = await api.get<FixturePreview>(
+      `/leagues/${id}/fixture-preview/`
+    );
+    return data;
+  },
+  generateFixtures: async (id: number): Promise<GenerateFixturesResponse> => {
+    const { data } = await api.post<GenerateFixturesResponse>(
       `/leagues/${id}/generate-fixtures/`
     );
     return data;
@@ -80,11 +104,33 @@ export const teamsApi = {
     );
     return unwrapList(data);
   },
-  create: async (leagueId: number, name: string): Promise<Team> => {
+  get: async (id: number): Promise<Team> => {
+    const { data } = await api.get<Team>(`/leagues/teams/${id}/`);
+    return data;
+  },
+  create: async (
+    leagueId: number,
+    name: string,
+    jersey_color = "#22c55e"
+  ): Promise<Team> => {
     const { data } = await api.post<Team>(`/leagues/${leagueId}/teams/`, {
       name,
+      jersey_color,
     });
     return data;
+  },
+  update: async (id: number, payload: { name: string }): Promise<Team> => {
+    const { data } = await api.patch<Team>(`/leagues/teams/${id}/`, payload);
+    return data;
+  },
+  updateJerseyColor: async (id: number, jersey_color: string): Promise<Team> => {
+    const { data } = await api.patch<Team>(`/leagues/teams/${id}/`, {
+      jersey_color,
+    });
+    return data;
+  },
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/leagues/teams/${id}/`);
   },
 };
 
@@ -109,6 +155,21 @@ export const playersApi = {
     );
     return data;
   },
+  update: async (
+    id: number,
+    payload: Partial<{
+      name: string;
+      position: PlayerPosition;
+      is_captain: boolean;
+      is_vice_captain?: boolean;
+    }>
+  ): Promise<Player> => {
+    const { data } = await api.patch<Player>(`/teams/players/${id}/`, payload);
+    return data;
+  },
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/teams/players/${id}/`);
+  },
 };
 
 export const matchesApi = {
@@ -116,8 +177,21 @@ export const matchesApi = {
     const { data } = await api.get<Match>(`/matches/${id}/`);
     return data;
   },
-  start: async (id: number): Promise<Match> => {
-    const { data } = await api.post<Match>(`/matches/${id}/start/`);
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/matches/${id}/`);
+  },
+  update: async (
+    id: number,
+    payload: Partial<{ home_jersey_color: string; away_jersey_color: string }>
+  ): Promise<Match> => {
+    const { data } = await api.patch<Match>(`/matches/${id}/`, payload);
+    return data;
+  },
+  start: async (
+    id: number,
+    payload?: { home_jersey_color: string; away_jersey_color: string }
+  ): Promise<Match> => {
+    const { data } = await api.post<Match>(`/matches/${id}/start/`, payload ?? {});
     return data;
   },
   goal: async (
@@ -143,6 +217,16 @@ export const matchesApi = {
     const { data } = await api.post<Match>(`/matches/${id}/end/`);
     return data;
   },
+  undo: async (id: number): Promise<Match> => {
+    const { data } = await api.post<Match>(`/matches/${id}/undo/`);
+    return data;
+  },
+  removeEvent: async (matchId: number, eventId: number): Promise<Match> => {
+    const { data } = await api.post<Match>(
+      `/matches/${matchId}/events/${eventId}/remove/`
+    );
+    return data;
+  },
 };
 
 export function getErrorMessage(error: unknown): string {
@@ -150,6 +234,11 @@ export function getErrorMessage(error: unknown): string {
     const detail = error.response?.data?.detail;
     if (typeof detail === "string") return detail;
     if (Array.isArray(detail)) return detail.join(", ");
+    const data = error.response?.data;
+    if (data && typeof data === "object") {
+      const messages = Object.values(data).flat();
+      if (messages.length) return messages.join(", ");
+    }
   }
   return "Something went wrong. Please try again.";
 }

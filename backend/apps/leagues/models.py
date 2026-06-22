@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.common.enums import LeagueFormat
+from apps.common.enums import LeagueFormat, LeagueStatus
 
 
 class League(models.Model):
@@ -11,6 +11,13 @@ class League(models.Model):
         choices=LeagueFormat.choices,
         default=LeagueFormat.SINGLE_ROUND_ROBIN,
     )
+    status = models.CharField(
+        max_length=20,
+        choices=LeagueStatus.choices,
+        default=LeagueStatus.DRAFT,
+    )
+    points_win = models.PositiveSmallIntegerField(default=3)
+    points_draw = models.PositiveSmallIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

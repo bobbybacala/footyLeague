@@ -9,22 +9,40 @@ from apps.matches.serializers import (
     CardSerializer,
     GoalSerializer,
     MatchSerializer,
+    MatchUpdateSerializer,
+    StartMatchSerializer,
 )
 from apps.matches.services import (
     MatchServiceError,
     add_goal,
     add_red_card,
     add_yellow_card,
+    delete_match,
     end_match,
+    remove_event,
     start_match,
+    undo_last_event,
 )
 
 
-class MatchDetailView(generics.RetrieveAPIView):
+class MatchDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Match.objects.select_related(
         "home_team", "away_team"
     ).prefetch_related("events__player", "events__assist_player", "events__team")
     serializer_class = MatchSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in ("PATCH", "PUT"):
+            return MatchUpdateSerializer
+        return MatchSerializer
+
+    def perform_destroy(self, instance):
+        try:
+            delete_match(instance)
+        except MatchServiceError as exc:
+            from rest_framework.exceptions import ValidationError
+
+            raise ValidationError(str(exc)) from exc
 
 
 class LeagueMatchListView(generics.ListAPIView):
@@ -45,9 +63,19 @@ class LeagueMatchListView(generics.ListAPIView):
 
 class StartMatchView(APIView):
     def post(self, request, pk):
-        match = get_object_or_404(Match, pk=pk)
+        match = get_object_or_404(
+            Match.objects.select_related("home_team", "away_team"), pk=pk
+        )
+        serializer = StartMatchSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         try:
-            start_match(match)
+            start_match(
+                match,
+                home_jersey_color=serializer.validated_data.get("home_jersey_color")
+                or None,
+                away_jersey_color=serializer.validated_data.get("away_jersey_color")
+                or None,
+            )
         except MatchServiceError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(MatchSerializer(match).data)
@@ -101,6 +129,29 @@ class EndMatchView(APIView):
         match = get_object_or_404(Match, pk=pk)
         try:
             end_match(match)
+        except MatchServiceError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        match.refresh_from_db()
+        return Response(MatchSerializer(match).data)
+
+
+class UndoLastEventView(APIView):
+    def post(self, request, pk):
+        match = get_object_or_404(Match, pk=pk)
+        try:
+            undo_last_event(match)
+        except MatchServiceError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        match.refresh_from_db()
+        return Response(MatchSerializer(match).data)
+
+
+class RemoveEventView(APIView):
+    def post(self, request, pk, event_pk):
+        match = get_object_or_404(Match, pk=pk)
+        event = get_object_or_404(match.events, pk=event_pk)
+        try:
+            remove_event(event)
         except MatchServiceError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         match.refresh_from_db()

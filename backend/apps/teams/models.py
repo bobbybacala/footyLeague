@@ -9,6 +9,7 @@ class Team(models.Model):
     )
     name = models.CharField(max_length=200)
     logo = models.URLField(blank=True, null=True)
+    jersey_color = models.CharField(max_length=7, default="#22c55e")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

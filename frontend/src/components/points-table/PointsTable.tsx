@@ -17,9 +17,9 @@ interface PointsTableProps {
 
 export function PointsTable({ standings, isLoading }: PointsTableProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full border-border/60">
       <CardHeader>
-        <CardTitle>Points Table</CardTitle>
+        <CardTitle>League Table</CardTitle>
       </CardHeader>
       <CardContent>
         {isLoading ? (

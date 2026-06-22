@@ -1,6 +1,12 @@
 from django.db import models
 
 
+class LeagueStatus(models.TextChoices):
+    DRAFT = "DRAFT", "Draft"
+    ACTIVE = "ACTIVE", "Active"
+    COMPLETED = "COMPLETED", "Completed"
+
+
 class LeagueFormat(models.TextChoices):
     SINGLE_ROUND_ROBIN = "SINGLE_ROUND_ROBIN", "Single Round Robin"
     DOUBLE_ROUND_ROBIN = "DOUBLE_ROUND_ROBIN", "Double Round Robin"

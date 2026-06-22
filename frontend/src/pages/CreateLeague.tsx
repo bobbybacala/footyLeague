@@ -17,12 +17,11 @@ export default function CreateLeague() {
   const [venue, setVenue] = useState("");
 
   const mutation = useMutation({
-    mutationFn: () =>
-      leaguesApi.create({ name, venue, format: "SINGLE_ROUND_ROBIN" }),
+    mutationFn: () => leaguesApi.create({ name, venue }),
     onSuccess: (league) => {
       setCurrentLeagueId(league.id);
       toast("League created successfully!", "success");
-      navigate(`/leagues/${league.id}/teams`);
+      navigate(`/leagues/${league.id}/setup/teams`);
     },
     onError: (err) => toast(getErrorMessage(err), "error"),
   });
@@ -34,10 +33,14 @@ export default function CreateLeague() {
   };
 
   return (
-    <div className="mx-auto max-w-lg p-6">
+    <div className="mx-auto max-w-lg p-6 md:p-8">
+      <div className="mb-6">
+        <p className="text-sm font-medium text-primary">Step 1 of 6</p>
+        <h1 className="text-2xl font-bold">Create League</h1>
+      </div>
       <Card>
         <CardHeader>
-          <CardTitle>Create League</CardTitle>
+          <CardTitle>League Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -60,18 +63,14 @@ export default function CreateLeague() {
               />
             </div>
             <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate("/")}
-              >
-                Back
+              <Button type="button" variant="outline" onClick={() => navigate("/")}>
+                Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={mutation.isPending || !name.trim() || !venue.trim()}
               >
-                Continue
+                Next
               </Button>
             </div>
           </form>

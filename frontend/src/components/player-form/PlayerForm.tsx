@@ -19,25 +19,24 @@ const POSITIONS: { value: PlayerPosition; label: string }[] = [
 ];
 
 interface PlayerFormProps {
-  onSubmit: (data: {
-    name: string;
-    position: PlayerPosition;
-    is_captain: boolean;
-  }) => void;
+  onSubmit: (data: { name: string; position: PlayerPosition }) => void;
   isSubmitting?: boolean;
+  goalkeeperTaken?: boolean;
 }
 
-export function PlayerForm({ onSubmit, isSubmitting }: PlayerFormProps) {
+export function PlayerForm({
+  onSubmit,
+  isSubmitting,
+  goalkeeperTaken = false,
+}: PlayerFormProps) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState<PlayerPosition>("MIDFIELDER");
-  const [isCaptain, setIsCaptain] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSubmit({ name: name.trim(), position, is_captain: isCaptain });
+    onSubmit({ name: name.trim(), position });
     setName("");
-    setIsCaptain(false);
   };
 
   return (
@@ -62,22 +61,17 @@ export function PlayerForm({ onSubmit, isSubmitting }: PlayerFormProps) {
           </SelectTrigger>
           <SelectContent>
             {POSITIONS.map((p) => (
-              <SelectItem key={p.value} value={p.value}>
+              <SelectItem
+                key={p.value}
+                value={p.value}
+                disabled={p.value === "GOALKEEPER" && goalkeeperTaken}
+              >
                 {p.label}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={isCaptain}
-          onChange={(e) => setIsCaptain(e.target.checked)}
-          className="accent-primary"
-        />
-        Team Captain
-      </label>
       <Button type="submit" disabled={isSubmitting || !name.trim()}>
         Add Player
       </Button>

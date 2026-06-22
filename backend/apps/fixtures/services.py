@@ -1,6 +1,21 @@
-from apps.common.enums import LeagueFormat, MatchStatus
+from apps.common.enums import LeagueFormat, LeagueStatus, MatchStatus
 from apps.leagues.models import League
 from apps.matches.models import Match
+
+
+def count_fixtures(league: League) -> int:
+    teams = list(league.teams.values_list("id", flat=True))
+    if len(teams) < 2:
+        return 0
+    n = len(teams)
+    if n % 2 == 1:
+        n += 1
+    rounds = n - 1
+    pairings_per_round = n // 2
+    count = rounds * pairings_per_round
+    if league.format == LeagueFormat.DOUBLE_ROUND_ROBIN:
+        count *= 2
+    return count
 
 
 def generate_pairings(team_ids: list[int]) -> list[tuple[int, int]]:
@@ -9,7 +24,6 @@ def generate_pairings(team_ids: list[int]) -> list[tuple[int, int]]:
     if len(teams) < 2:
         return []
 
-    # Pad with None for odd team count (BYE)
     if len(teams) % 2 == 1:
         teams.append(None)
 
@@ -24,18 +38,19 @@ def generate_pairings(team_ids: list[int]) -> list[tuple[int, int]]:
             away = teams[n - 1 - i]
             if home is None or away is None:
                 continue
-            # Alternate home/away for fairness across rounds
             if round_idx % 2 == 0:
                 pairings.append((home, away))
             else:
                 pairings.append((away, home))
-        # Rotate all except first team
         teams = [teams[0]] + [teams[-1]] + teams[1:-1]
 
     return pairings
 
 
 def generate_fixtures(league: League) -> list[Match]:
+    if league.status != LeagueStatus.DRAFT:
+        raise ValueError("Fixtures can only be generated for leagues in DRAFT status.")
+
     teams = list(league.teams.values_list("id", flat=True))
     if len(teams) < 2:
         raise ValueError("At least 2 teams are required to generate fixtures.")
@@ -60,4 +75,51 @@ def generate_fixtures(league: League) -> list[Match]:
             )
         )
 
-    return Match.objects.bulk_create(matches)
+    created = Match.objects.bulk_create(matches)
+    league.status = LeagueStatus.ACTIVE
+    league.save(update_fields=["status"])
+    return created
+
+
+def _match_exists(league: League, home_id: int, away_id: int) -> bool:
+    return Match.objects.filter(
+        league=league, home_team_id=home_id, away_team_id=away_id
+    ).exists()
+
+
+def add_fixtures_for_new_team(league: League, new_team_id: int) -> list[Match]:
+    """Create pending fixtures between a new team and all existing teams."""
+    if league.status == LeagueStatus.DRAFT:
+        return []
+
+    existing_team_ids = list(
+        league.teams.exclude(pk=new_team_id).values_list("id", flat=True)
+    )
+    if not existing_team_ids:
+        return []
+
+    to_create: list[Match] = []
+    for other_id in existing_team_ids:
+        pairings = [(new_team_id, other_id)]
+        if league.format == LeagueFormat.DOUBLE_ROUND_ROBIN:
+            pairings.append((other_id, new_team_id))
+
+        for home_id, away_id in pairings:
+            if not _match_exists(league, home_id, away_id):
+                to_create.append(
+                    Match(
+                        league=league,
+                        home_team_id=home_id,
+                        away_team_id=away_id,
+                        status=MatchStatus.PENDING,
+                    )
+                )
+
+    if not to_create:
+        return []
+
+    created = Match.objects.bulk_create(to_create)
+    if league.status == LeagueStatus.COMPLETED:
+        league.status = LeagueStatus.ACTIVE
+        league.save(update_fields=["status"])
+    return created

@@ -11,6 +11,8 @@ class Player(models.Model):
     name = models.CharField(max_length=200)
     position = models.CharField(max_length=20, choices=PlayerPosition.choices)
     is_captain = models.BooleanField(default=False)
+    is_vice_captain = models.BooleanField(default=False)
+    is_inactive = models.BooleanField(default=False)
     goals = models.PositiveIntegerField(default=0)
     assists = models.PositiveIntegerField(default=0)
     yellow_cards = models.PositiveIntegerField(default=0)

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AlertTriangle } from "lucide-react";
 
 export default function AddTeams() {
   const { id } = useParams<{ id: string }>();
@@ -22,7 +23,8 @@ export default function AddTeams() {
   });
 
   const mutation = useMutation({
-    mutationFn: (name: string) => teamsApi.create(leagueId, name),
+    mutationFn: ({ name, jersey_color }: { name: string; jersey_color: string }) =>
+      teamsApi.create(leagueId, name, jersey_color),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["teams", leagueId] });
       toast("Team added!", "success");
@@ -31,12 +33,16 @@ export default function AddTeams() {
   });
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-6">
+    <div className="mx-auto max-w-2xl space-y-6 p-6 md:p-8">
       <div>
+        <p className="text-sm font-medium text-primary">Step 2 of 6</p>
         <h1 className="text-2xl font-bold">Add Teams</h1>
-        <p className="text-muted-foreground">
-          Add at least 2 teams to continue
-        </p>
+        <p className="text-muted-foreground">Add at least 2 teams to continue</p>
+      </div>
+
+      <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+        You must finish league setup before continuing. Back navigation is disabled.
       </div>
 
       <Card>
@@ -45,7 +51,7 @@ export default function AddTeams() {
         </CardHeader>
         <CardContent>
           <TeamForm
-            onSubmit={(name) => mutation.mutate(name)}
+            onSubmit={(values) => mutation.mutate(values)}
             isSubmitting={mutation.isPending}
           />
         </CardContent>
@@ -73,9 +79,14 @@ export default function AddTeams() {
               {teams.map((team) => (
                 <li
                   key={team.id}
-                  className="rounded-md border border-border px-3 py-2"
+                  className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
                 >
-                  {team.name}
+                  <span>{team.name}</span>
+                  <div
+                    className="h-6 w-6 rounded-full border border-border"
+                    style={{ backgroundColor: team.jersey_color }}
+                    title="Default jersey color"
+                  />
                 </li>
               ))}
             </ul>
@@ -85,17 +96,13 @@ export default function AddTeams() {
         </CardContent>
       </Card>
 
-      <div className="flex gap-2">
-        <Button variant="outline" onClick={() => navigate("/")}>
-          Home
-        </Button>
-        <Button
-          onClick={() => navigate(`/leagues/${leagueId}/players`)}
-          disabled={!teams || teams.length < 2}
-        >
-          Continue to Players
-        </Button>
-      </div>
+      <Button
+        className="w-full"
+        onClick={() => navigate(`/leagues/${leagueId}/setup/players`)}
+        disabled={!teams || teams.length < 2}
+      >
+        Continue to Players
+      </Button>
     </div>
   );
 }

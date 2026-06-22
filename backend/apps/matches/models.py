@@ -26,6 +26,8 @@ class Match(models.Model):
     scheduled_date = models.DateTimeField(blank=True, null=True)
     started_at = models.DateTimeField(blank=True, null=True)
     ended_at = models.DateTimeField(blank=True, null=True)
+    home_jersey_color = models.CharField(max_length=7, blank=True, default="")
+    away_jersey_color = models.CharField(max_length=7, blank=True, default="")
 
     class Meta:
         ordering = ["id"]

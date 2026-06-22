@@ -40,9 +40,9 @@ function AwardSection({
 
 export function AwardsPanel({ awards, isLoading }: AwardsPanelProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full border-border/60">
       <CardHeader>
-        <CardTitle>Individual Awards</CardTitle>
+        <CardTitle>League Awards</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {isLoading ? (

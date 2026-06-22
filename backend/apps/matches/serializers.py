@@ -46,8 +46,25 @@ class MatchSerializer(serializers.ModelSerializer):
             "scheduled_date",
             "started_at",
             "ended_at",
+            "home_jersey_color",
+            "away_jersey_color",
             "events",
         ]
+
+
+class MatchUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Match
+        fields = ["home_jersey_color", "away_jersey_color"]
+
+
+class StartMatchSerializer(serializers.Serializer):
+    home_jersey_color = serializers.RegexField(
+        r"^#[0-9A-Fa-f]{6}$", required=False, allow_blank=True
+    )
+    away_jersey_color = serializers.RegexField(
+        r"^#[0-9A-Fa-f]{6}$", required=False, allow_blank=True
+    )
 
 
 class GoalSerializer(serializers.Serializer):
