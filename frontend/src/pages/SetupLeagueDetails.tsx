@@ -1,27 +1,43 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
-import { useLeagueStore } from "@/store/leagueStore";
 import { useToast } from "@/components/ui/toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function CreateLeague() {
+export default function SetupLeagueDetails() {
+  const { id } = useParams<{ id: string }>();
+  const leagueId = Number(id);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
-  const setCurrentLeagueId = useLeagueStore((s) => s.setCurrentLeagueId);
   const [name, setName] = useState("");
   const [venue, setVenue] = useState("");
 
+  const { data: league, isLoading } = useQuery({
+    queryKey: ["league", leagueId],
+    queryFn: () => leaguesApi.get(leagueId),
+    enabled: !!leagueId,
+  });
+
+  useEffect(() => {
+    if (league) {
+      setName(league.name);
+      setVenue(league.venue);
+    }
+  }, [league]);
+
   const mutation = useMutation({
-    mutationFn: () => leaguesApi.create({ name, venue }),
-    onSuccess: (league) => {
-      setCurrentLeagueId(league.id);
-      toast("League created successfully!", "success");
-      navigate(`/leagues/${league.id}/setup/teams`);
+    mutationFn: () =>
+      leaguesApi.update(leagueId, { name: name.trim(), venue: venue.trim() }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["league", leagueId] });
+      toast("League details saved!", "success");
+      navigate(`/leagues/${leagueId}/setup/teams`);
     },
     onError: (err) => toast(getErrorMessage(err), "error"),
   });
@@ -32,12 +48,22 @@ export default function CreateLeague() {
     mutation.mutate();
   };
 
-  return (
-    <div className="mx-auto max-w-lg p-6 md:p-8">
-      <div className="mb-6">
-        <p className="text-sm font-medium text-primary">Step 1 of 6</p>
-        <h1 className="text-2xl font-bold">Create League</h1>
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-lg p-6 md:p-8">
+        <Skeleton className="h-64 w-full rounded-xl" />
       </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-lg space-y-6 p-6 md:p-8">
+      <div>
+        <p className="text-sm font-medium text-primary">Step 1 of 6</p>
+        <h1 className="text-2xl font-bold">League Details</h1>
+        <p className="text-muted-foreground">Edit your league name and venue</p>
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>League Details</CardTitle>
@@ -62,17 +88,13 @@ export default function CreateLeague() {
                 placeholder="Pune Ground"
               />
             </div>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => navigate("/")}>
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={mutation.isPending || !name.trim() || !venue.trim()}
-              >
-                Next
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={mutation.isPending || !name.trim() || !venue.trim()}
+            >
+              Save & Continue
+            </Button>
           </form>
         </CardContent>
       </Card>

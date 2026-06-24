@@ -52,3 +52,23 @@ body {
   background-color: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
   border-radius: 9999px;
 }
+
+.color-swatch {
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+}
+
+.color-swatch::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.color-swatch::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.375rem;
+}
+
+.color-swatch::-moz-color-swatch {
+  border: none;
+  border-radius: 0.375rem;
+}

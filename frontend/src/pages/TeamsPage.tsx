@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Crown, Plus, RotateCcw, Save, Shield, Trash2, Users } from "lucide-react";
+import { Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { leaguesApi, playersApi, teamsApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
 import { PlayerForm } from "@/components/player-form/PlayerForm";
@@ -11,10 +11,20 @@ import {
   type SquadPlayerDraft,
 } from "@/components/squad/SquadPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +34,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
 import { validateTeamSquad } from "@/lib/teamValidation";
 import type { PlayerPosition, Team } from "@/types";
 
@@ -50,11 +59,11 @@ export default function TeamsPage() {
   const [viceCaptainId, setViceCaptainId] = useState("");
   const [originalCaptainId, setOriginalCaptainId] = useState("");
   const [originalViceCaptainId, setOriginalViceCaptainId] = useState("");
-  const [teamNameDraft, setTeamNameDraft] = useState("");
   const [jerseyColorDraft, setJerseyColorDraft] = useState("#22c55e");
   const [originalJerseyColor, setOriginalJerseyColor] = useState("#22c55e");
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [deletePlayerId, setDeletePlayerId] = useState<number | null>(null);
+  const [showAddTeamModal, setShowAddTeamModal] = useState(false);
   const [showAddTeamConfirm, setShowAddTeamConfirm] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
   const [newTeamJerseyColor, setNewTeamJerseyColor] = useState("#22c55e");
@@ -88,7 +97,6 @@ export default function TeamsPage() {
 
   useEffect(() => {
     if (selectedTeam) {
-      setTeamNameDraft(selectedTeam.name);
       setJerseyColorDraft(selectedTeam.jersey_color || "#22c55e");
       setOriginalJerseyColor(selectedTeam.jersey_color || "#22c55e");
     }
@@ -133,11 +141,9 @@ export default function TeamsPage() {
 
   const captainChanged = captainId !== originalCaptainId;
   const viceChanged = viceCaptainId !== originalViceCaptainId;
-  const teamNameChanged = selectedTeam && teamNameDraft.trim() !== selectedTeam.name;
   const jerseyChanged = jerseyColorDraft !== originalJerseyColor;
   const hasChanges =
     changedPlayerIds.length > 0 ||
-    !!teamNameChanged ||
     captainChanged ||
     viceChanged ||
     jerseyChanged;
@@ -160,9 +166,6 @@ export default function TeamsPage() {
         throw new Error("Please select a team captain.");
       }
 
-      if (teamNameChanged && selectedTeam) {
-        await teamsApi.update(selectedTeam.id, { name: teamNameDraft.trim() });
-      }
       if (jerseyChanged && selectedTeam) {
         await teamsApi.updateJerseyColor(selectedTeam.id, jerseyColorDraft);
       }
@@ -237,7 +240,6 @@ export default function TeamsPage() {
 
   const revertChanges = () => {
     if (selectedTeam) {
-      setTeamNameDraft(selectedTeam.name);
       setJerseyColorDraft(originalJerseyColor);
     }
     setDrafts(
@@ -285,15 +287,23 @@ export default function TeamsPage() {
               : "Manage teams and players — 2+ players including exactly one goalkeeper"}
           </p>
         </div>
-        {!isConcluded && selectedTeam && hasChanges && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setShowDiscardChangesConfirm(true)}>
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Discard Changes
-            </Button>
-            <Button onClick={handleSaveClick}>
-              <Save className="mr-2 h-4 w-4" />
-              Save Changes
+        {!isConcluded && (
+          <div className="flex flex-wrap items-center gap-2">
+            {selectedTeam && hasChanges && (
+              <>
+                <Button variant="outline" onClick={() => setShowDiscardChangesConfirm(true)}>
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Discard Changes
+                </Button>
+                <Button onClick={handleSaveClick}>
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </Button>
+              </>
+            )}
+            <Button onClick={() => setShowAddTeamModal(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add New team
             </Button>
           </div>
         )}
@@ -301,90 +311,60 @@ export default function TeamsPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">All Teams</h2>
-          {isLoading ? (
-            <Skeleton className="h-24 w-full" />
-          ) : (
-            <div className="space-y-3">
-              {teams?.map((team) => (
-                <Card
-                  key={team.id}
-                  className={cn(
-                    "cursor-pointer border-border/60 transition-colors hover:border-primary/40",
-                    selectedTeam?.id === team.id && "border-primary/60 bg-primary/5"
-                  )}
-                  onClick={() => selectTeam(team)}
+          <Card className="border-border/60">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Select Team</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-10 w-full" />
+              ) : teams && teams.length > 0 ? (
+                <Select
+                  value={selectedTeam ? String(selectedTeam.id) : undefined}
+                  onValueChange={(value) => {
+                    const team = teams.find((t) => String(t.id) === value);
+                    if (team) selectTeam(team);
+                  }}
                 >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: `${team.jersey_color}33` }}
-                      >
-                        <Shield className="h-5 w-5" style={{ color: team.jersey_color }} />
-                      </div>
-                      <CardTitle className="text-base">{team.name}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-1 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      {team.player_count} players
-                    </div>
-                    {team.captain_name && (
-                      <div className="flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-primary" />
-                        {team.captain_name}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a team" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teams.map((team) => (
+                      <SelectItem key={team.id} value={String(team.id)}>
+                        {team.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <p className="text-sm text-muted-foreground">No teams yet.</p>
+              )}
+            </CardContent>
+          </Card>
 
-          {!isConcluded && (
+          {!isConcluded && selectedTeam && (
             <Card className="border-border/60">
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Plus className="h-4 w-4" />
-                  Add Team
-                </CardTitle>
+                <CardTitle className="text-base">Add Player to {selectedTeam.name}</CardTitle>
               </CardHeader>
               <CardContent>
-                <TeamForm
-                  onSubmit={(values) => {
-                    setNewTeamName(values.name);
-                    setNewTeamJerseyColor(values.jersey_color);
-                    setShowAddTeamConfirm(true);
-                  }}
-                  isSubmitting={addTeamMutation.isPending}
+                <PlayerForm
+                  onSubmit={(data) => addPlayerMutation.mutate(data)}
+                  isSubmitting={addPlayerMutation.isPending}
+                  goalkeeperTaken={playerIds.some(
+                    (id) => drafts[id]?.position === "GOALKEEPER"
+                  )}
                 />
               </CardContent>
             </Card>
           )}
+
         </div>
 
         <div className="space-y-4">
           {selectedTeam ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-lg font-semibold">{selectedTeam.name}</h2>
-                {!isConcluded && (
-                  <div className="flex gap-2">
-                    {hasChanges && <Badge variant="outline">Unsaved changes</Badge>}
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => setShowDeleteTeamConfirm(true)}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Team
-                    </Button>
-                  </div>
-                )}
-              </div>
-
               {!isConcluded && squadError && (
                 <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {squadError}
@@ -392,37 +372,38 @@ export default function TeamsPage() {
               )}
 
               {!isConcluded && (
-                <>
-                  <Card className="border-border/60">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Team Name</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Input
-                        value={teamNameDraft}
-                        onChange={(e) => setTeamNameDraft(e.target.value)}
-                      />
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border/60">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base">Default Jersey Color</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="color"
-                          value={jerseyColorDraft}
-                          onChange={(e) => setJerseyColorDraft(e.target.value)}
-                          className="h-10 w-14 cursor-pointer rounded border border-border bg-transparent"
-                        />
-                        <Label className="text-sm text-muted-foreground">
-                          Used as default for matches
-                        </Label>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </>
+                <Card className="border-border/60">
+                  <CardContent className="p-0">
+                    <Table>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="w-44 font-medium text-foreground">
+                            Team Name
+                          </TableCell>
+                          <TableCell>{selectedTeam.name}</TableCell>
+                        </TableRow>
+                        <TableRow className="hover:bg-transparent">
+                          <TableCell className="font-medium text-foreground">
+                            Default Jersey Color
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="color"
+                                value={jerseyColorDraft}
+                                onChange={(e) => setJerseyColorDraft(e.target.value)}
+                                className="color-swatch h-8 w-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent outline-none focus:outline-none focus:ring-0"
+                              />
+                              <span className="text-muted-foreground">
+                                Used as default for matches
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
               )}
 
               <Card className="border-border/60">
@@ -457,20 +438,17 @@ export default function TeamsPage() {
               </Card>
 
               {!isConcluded && (
-                <Card className="border-border/60">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base">Add Player</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <PlayerForm
-                      onSubmit={(data) => addPlayerMutation.mutate(data)}
-                      isSubmitting={addPlayerMutation.isPending}
-                      goalkeeperTaken={playerIds.some(
-                        (id) => drafts[id]?.position === "GOALKEEPER"
-                      )}
-                    />
-                  </CardContent>
-                </Card>
+                <div className="flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setShowDeleteTeamConfirm(true)}
+                  >
+                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                    Delete Team
+                  </Button>
+                </div>
               )}
             </>
           ) : (
@@ -496,6 +474,26 @@ export default function TeamsPage() {
               Save Changes
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAddTeamModal} onOpenChange={setShowAddTeamModal}>
+        <DialogContent className="z-[100]" overlayClassName="z-[100]">
+          <DialogHeader>
+            <DialogTitle>Add Team</DialogTitle>
+            <DialogDescription>
+              Create a new team for this league. Fixtures will be updated automatically.
+            </DialogDescription>
+          </DialogHeader>
+          <TeamForm
+            onSubmit={(values) => {
+              setNewTeamName(values.name);
+              setNewTeamJerseyColor(values.jersey_color);
+              setShowAddTeamModal(false);
+              setShowAddTeamConfirm(true);
+            }}
+            isSubmitting={addTeamMutation.isPending}
+          />
         </DialogContent>
       </Dialog>
 

@@ -41,7 +41,7 @@ export function PlayerForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="space-y-2">
+      <div>
         <Label htmlFor="player-name">Player Name</Label>
         <Input
           id="player-name"
@@ -50,7 +50,7 @@ export function PlayerForm({
           placeholder="Enter player name"
         />
       </div>
-      <div className="space-y-2">
+      <div>
         <Label>Position</Label>
         <Select
           value={position}

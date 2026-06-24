@@ -7,12 +7,7 @@ def count_fixtures(league: League) -> int:
     teams = list(league.teams.values_list("id", flat=True))
     if len(teams) < 2:
         return 0
-    n = len(teams)
-    if n % 2 == 1:
-        n += 1
-    rounds = n - 1
-    pairings_per_round = n // 2
-    count = rounds * pairings_per_round
+    count = len(generate_pairings(teams))
     if league.format == LeagueFormat.DOUBLE_ROUND_ROBIN:
         count *= 2
     return count

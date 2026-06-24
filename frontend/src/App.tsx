@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import LeagueLayout from "@/components/layout/LeagueLayout";
 import Home from "@/pages/Home";
 import CreateLeague from "@/pages/CreateLeague";
+import SetupLeagueDetails from "@/pages/SetupLeagueDetails";
 import AddTeams from "@/pages/AddTeams";
 import AddPlayers from "@/pages/AddPlayers";
 import SetupSettings from "@/pages/SetupSettings";
@@ -40,6 +41,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/leagues/new" element={<CreateLeague />} />
+              <Route path="/leagues/:id/setup/league" element={<SetupLeagueDetails />} />
               <Route path="/leagues/:id/setup/teams" element={<AddTeams />} />
               <Route path="/leagues/:id/setup/players" element={<AddPlayers />} />
               <Route path="/leagues/:id/setup/settings" element={<SetupSettings />} />

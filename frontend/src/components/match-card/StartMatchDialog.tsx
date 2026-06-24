@@ -78,7 +78,7 @@ export function StartMatchDialog({
 
         {match && (
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div>
               <Label>{match.home_team_name}</Label>
               <input
                 type="color"
@@ -87,7 +87,7 @@ export function StartMatchDialog({
                 className="h-10 w-full cursor-pointer rounded border border-border bg-transparent"
               />
             </div>
-            <div className="space-y-2">
+            <div>
               <Label>{match.away_team_name}</Label>
               <input
                 type="color"

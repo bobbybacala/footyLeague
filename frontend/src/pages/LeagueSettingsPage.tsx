@@ -124,7 +124,7 @@ export default function LeagueSettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="league-name">League Name</Label>
             <Input
               id="league-name"
@@ -133,7 +133,7 @@ export default function LeagueSettingsPage() {
               disabled={isConcluded}
             />
           </div>
-          <div className="space-y-2">
+          <div>
             <Label htmlFor="venue">Venue</Label>
             <Input
               id="venue"

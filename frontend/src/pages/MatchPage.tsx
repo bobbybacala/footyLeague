@@ -498,7 +498,7 @@ export default function MatchPage() {
             <CardTitle className="text-base">Jersey Colors</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div>
               <Label>{match.home_team_name}</Label>
               <input
                 type="color"
@@ -507,7 +507,7 @@ export default function MatchPage() {
                 className="h-10 w-full cursor-pointer rounded border border-border bg-transparent"
               />
             </div>
-            <div className="space-y-2">
+            <div>
               <Label>{match.away_team_name}</Label>
               <input
                 type="color"
@@ -622,7 +622,7 @@ export default function MatchPage() {
 
           {action === "goal" && (
             <div className="space-y-4">
-              <div className="space-y-2">
+              <div>
                 <Label>Goal Scorer</Label>
                 <Select value={scorerId} onValueChange={setScorerId}>
                   <SelectTrigger>
@@ -637,7 +637,7 @@ export default function MatchPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div>
                 <Label>Assister (optional)</Label>
                 <Select value={assistId} onValueChange={setAssistId}>
                   <SelectTrigger>
@@ -666,7 +666,7 @@ export default function MatchPage() {
 
           {(action === "yellow" || action === "red") && (
             <div className="space-y-4">
-              <div className="space-y-2">
+              <div>
                 <Label>Player</Label>
                 <Select value={cardPlayerId} onValueChange={setCardPlayerId}>
                   <SelectTrigger>
