@@ -75,14 +75,23 @@ if os.getenv("USE_SQLITE", "false").lower() == "true":
         }
     }
 else:
+    db_host = os.getenv("DB_HOST", "localhost")
+    db_options: dict[str, str] = {}
+    sslmode = os.getenv("DB_SSLMODE")
+    if sslmode:
+        db_options["sslmode"] = sslmode
+    elif db_host not in ("localhost", "127.0.0.1"):
+        db_options["sslmode"] = "require"
+
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.getenv("DB_NAME", "footy_league"),
             "USER": os.getenv("DB_USER", "postgres"),
             "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
-            "HOST": os.getenv("DB_HOST", "localhost"),
+            "HOST": db_host,
             "PORT": os.getenv("DB_PORT", "5432"),
+            **({"OPTIONS": db_options} if db_options else {}),
         }
     }
 
