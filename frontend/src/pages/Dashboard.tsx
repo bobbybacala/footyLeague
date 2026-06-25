@@ -1,21 +1,15 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Crown, LogOut, Shield, Swords, Users } from "lucide-react";
+import { Calendar, Crown, Goal, LogOut, Shield, Swords, Users } from "lucide-react";
 import { leaguesApi } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { PointsTable } from "@/components/points-table/PointsTable";
 import { MatchCard } from "@/components/match-card/MatchCard";
 import { AwardsPanel } from "@/components/awards-panel/AwardsPanel";
-import { EventTimeline } from "@/components/match-card/EventTimeline";
+import { MatchDetailsDialog } from "@/components/match-card/MatchDetailsDialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Match } from "@/types";
@@ -49,9 +43,13 @@ export default function Dashboard({ leagueId }: DashboardProps) {
     queryFn: () => leaguesApi.matches(leagueId, "FINISHED"),
   });
 
-  const recentResults = [...(finishedMatches ?? [])].reverse();
+  const recentResults = finishedMatches ?? [];
   const isConcluded = league?.status === "COMPLETED";
   const champion = isConcluded && standings?.length ? standings[0] : null;
+  const totalGoals = useMemo(
+    () => (standings ?? []).reduce((sum, row) => sum + row.goals_for, 0),
+    [standings]
+  );
 
   const exitLeague = () => {
     setCurrentLeagueId(null);
@@ -67,7 +65,7 @@ export default function Dashboard({ leagueId }: DashboardProps) {
         </p>
       </div>
 
-      <div className="hidden gap-4 sm:grid-cols-2 md:grid xl:grid-cols-4">
+      <div className="hidden gap-4 sm:grid-cols-2 md:grid lg:grid-cols-3 xl:grid-cols-5">
         <StatCard
           label="Total Teams"
           value={league?.team_count ?? 0}
@@ -92,6 +90,12 @@ export default function Dashboard({ leagueId }: DashboardProps) {
           icon={Calendar}
           isLoading={leagueLoading}
         />
+        <StatCard
+          label="Total Goals Scored"
+          value={totalGoals}
+          icon={Goal}
+          isLoading={standingsLoading}
+        />
       </div>
 
       {champion && (
@@ -109,17 +113,15 @@ export default function Dashboard({ leagueId }: DashboardProps) {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="hidden md:block">
-          <PointsTable standings={standings ?? []} isLoading={standingsLoading} />
-        </div>
+      <div className="grid min-w-0 gap-6 xl:grid-cols-3">
+        <PointsTable standings={standings ?? []} isLoading={standingsLoading} />
 
         <div className="flex min-h-0 flex-col space-y-4">
           <h2 className="text-lg font-semibold">Recent Results</h2>
           {finishedLoading ? (
             <Skeleton className="h-[32rem] w-full" />
           ) : recentResults.length > 0 ? (
-            <div className="scrollbar-thin max-h-[calc(100dvh-6rem)] space-y-2.5 overflow-y-auto pr-1 md:h-[32rem] md:max-h-none">
+            <div className="max-h-[calc(100dvh-6rem)] space-y-2.5 overflow-y-auto md:h-[32rem] md:max-h-none">
               {recentResults.map((match) => (
                 <MatchCard
                   key={match.id}
@@ -136,24 +138,15 @@ export default function Dashboard({ leagueId }: DashboardProps) {
         </div>
 
         <div className="hidden md:block">
-          <AwardsPanel awards={awards} isLoading={awardsLoading} />
+          <AwardsPanel leagueId={leagueId} awards={awards} isLoading={awardsLoading} />
         </div>
       </div>
 
-      <Dialog
+      <MatchDetailsDialog
+        match={selectedMatch}
         open={!!selectedMatch}
         onOpenChange={(open) => !open && setSelectedMatch(null)}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedMatch?.home_team_name} {selectedMatch?.home_score} -{" "}
-              {selectedMatch?.away_score} {selectedMatch?.away_team_name}
-            </DialogTitle>
-          </DialogHeader>
-          {selectedMatch && <EventTimeline events={selectedMatch.events} />}
-        </DialogContent>
-      </Dialog>
+      />
 
       {isConcluded && (
         <div className="fixed bottom-0 left-0 right-0 z-30 hidden border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:left-64 md:block">

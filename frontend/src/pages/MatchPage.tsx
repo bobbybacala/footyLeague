@@ -412,17 +412,24 @@ export default function MatchPage() {
     teamSide: "home" | "away";
     teamName: string;
   }) => (
-    <Card className="border-border/60">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base">{teamName}</CardTitle>
+    <Card className="h-full border-border/60">
+      <CardHeader className="pb-2 md:pb-3">
+        <CardTitle className="truncate text-sm md:text-base">{teamName}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
-        <Button disabled={!isEditable} onClick={() => openAction("goal", teamSide)}>
+        <Button
+          size="sm"
+          className="w-full text-xs md:text-sm"
+          disabled={!isEditable}
+          onClick={() => openAction("goal", teamSide)}
+        >
           <Goal className="h-4 w-4" />
           Goal
         </Button>
         <Button
           variant="secondary"
+          size="sm"
+          className="w-full text-xs md:text-sm"
           disabled={!isEditable}
           onClick={() => openAction("yellow", teamSide)}
         >
@@ -430,7 +437,9 @@ export default function MatchPage() {
           Yellow Card
         </Button>
         <Button
-          variant="destructive"
+          variant="secondary"
+          size="sm"
+          className="w-full text-xs md:text-sm"
           disabled={!isEditable}
           onClick={() => openAction("red", teamSide)}
         >
@@ -547,9 +556,13 @@ export default function MatchPage() {
       )}
 
       {isEditable && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          <TeamActions teamSide="home" teamName={match.home_team_name} />
-          <TeamActions teamSide="away" teamName={match.away_team_name} />
+        <div className="flex gap-3 md:gap-4">
+          <div className="min-w-0 flex-1">
+            <TeamActions teamSide="home" teamName={match.home_team_name} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <TeamActions teamSide="away" teamName={match.away_team_name} />
+          </div>
         </div>
       )}
 
@@ -562,6 +575,9 @@ export default function MatchPage() {
             events={displayEvents}
             editable={isEditable}
             onRemoveEvent={setRemoveEventId}
+            isFinished={isFinished}
+            homeScore={displayHomeScore}
+            awayScore={displayAwayScore}
           />
         </CardContent>
       </Card>

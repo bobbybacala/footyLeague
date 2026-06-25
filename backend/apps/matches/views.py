@@ -1,8 +1,10 @@
+from django.db.models import F
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.common.enums import MatchStatus
 from apps.leagues.models import League
 from apps.matches.models import Match
 from apps.matches.serializers import (
@@ -58,6 +60,8 @@ class LeagueMatchListView(generics.ListAPIView):
         status_filter = self.request.query_params.get("status")
         if status_filter:
             qs = qs.filter(status=status_filter)
+            if status_filter == MatchStatus.FINISHED:
+                qs = qs.order_by(F("ended_at").desc(nulls_last=True), "-id")
         return qs
 
 

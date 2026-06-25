@@ -1,6 +1,5 @@
 import { Trash2 } from "lucide-react";
 import type { Player, PlayerPosition } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -105,14 +104,14 @@ export function SquadPanel({
               changed && !readOnly && "border-primary/40"
             )}
           >
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex flex-row flex-wrap items-center gap-2">
               {readOnly || !editableFields ? (
-                <>
-                  <span className="min-w-0 font-medium sm:min-w-[8rem]">{draft.name}</span>
-                  <span className="text-xs text-muted-foreground sm:text-sm">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <span className="min-w-0 truncate font-medium">{draft.name}</span>
+                  <span className="shrink-0 text-xs uppercase text-muted-foreground">
                     {draft.position.replace("_", " ")}
                   </span>
-                </>
+                </div>
               ) : (
                 <>
                   <Input
@@ -184,9 +183,6 @@ export function SquadPanel({
                   V
                 </button>
               </div>
-
-              {isCaptain && <Badge variant="outline">Captain</Badge>}
-              {isVice && <Badge className="bg-amber-500/20 text-amber-500">Vice</Badge>}
 
               {!readOnly && onDeletePlayer && (
                 <Button

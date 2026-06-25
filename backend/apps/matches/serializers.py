@@ -29,7 +29,15 @@ class MatchEventSerializer(serializers.ModelSerializer):
 class MatchSerializer(serializers.ModelSerializer):
     home_team_name = serializers.CharField(source="home_team.name", read_only=True)
     away_team_name = serializers.CharField(source="away_team.name", read_only=True)
+    home_jersey_color = serializers.SerializerMethodField()
+    away_jersey_color = serializers.SerializerMethodField()
     events = MatchEventSerializer(many=True, read_only=True)
+
+    def get_home_jersey_color(self, obj: Match) -> str:
+        return obj.home_jersey_color or obj.home_team.jersey_color
+
+    def get_away_jersey_color(self, obj: Match) -> str:
+        return obj.away_jersey_color or obj.away_team.jersey_color
 
     class Meta:
         model = Match

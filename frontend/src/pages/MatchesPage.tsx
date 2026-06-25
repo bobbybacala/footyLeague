@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { leaguesApi, matchesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
 import { MatchCard } from "@/components/match-card/MatchCard";
-import { EventTimeline } from "@/components/match-card/EventTimeline";
+import { MatchDetailsDialog } from "@/components/match-card/MatchDetailsDialog";
 import { FixtureCard } from "@/components/fixture-card/FixtureCard";
 import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
 import { Button } from "@/components/ui/button";
@@ -164,36 +164,26 @@ export default function MatchesPage() {
               {filteredFinished.map((match) => (
                 <div key={match.id} className="space-y-2">
                   <MatchCard match={match} onClick={() => setSelectedMatch(match)} />
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => setSelectedMatch(match)}
-                    >
-                      View
-                    </Button>
-                    {!isConcluded && canEdit && (
-                      <>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => navigate(`/matches/${match.id}`)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => setDeleteMatchId(match.id)}
-                        >
-                          Reset
-                        </Button>
-                      </>
-                    )}
-                  </div>
+                  {!isConcluded && canEdit && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => navigate(`/matches/${match.id}`)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setDeleteMatchId(match.id)}
+                      >
+                        Reset
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -207,22 +197,11 @@ export default function MatchesPage() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={!!selectedMatch} onOpenChange={(o) => !o && setSelectedMatch(null)}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Match Details</DialogTitle>
-          </DialogHeader>
-          {selectedMatch && (
-            <>
-              <p className="text-center text-xl font-bold">
-                {selectedMatch.home_team_name} {selectedMatch.home_score} -{" "}
-                {selectedMatch.away_score} {selectedMatch.away_team_name}
-              </p>
-              <EventTimeline events={selectedMatch.events} />
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <MatchDetailsDialog
+        match={selectedMatch}
+        open={!!selectedMatch}
+        onOpenChange={(open) => !open && setSelectedMatch(null)}
+      />
 
       <StartMatchDialog
         match={confirmMatch ?? null}

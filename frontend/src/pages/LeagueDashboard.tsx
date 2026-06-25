@@ -7,14 +7,8 @@ import { MatchCard } from "@/components/match-card/MatchCard";
 import { AwardsPanel } from "@/components/awards-panel/AwardsPanel";
 import { FixtureCard } from "@/components/fixture-card/FixtureCard";
 import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
-import { EventTimeline } from "@/components/match-card/EventTimeline";
+import { MatchDetailsDialog } from "@/components/match-card/MatchDetailsDialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Match } from "@/types";
 
@@ -113,7 +107,7 @@ export default function LeagueDashboard() {
           )}
         </div>
 
-        <AwardsPanel awards={awards} isLoading={awardsLoading} />
+        <AwardsPanel leagueId={leagueId} awards={awards} isLoading={awardsLoading} />
       </div>
 
       <div>
@@ -149,20 +143,11 @@ export default function LeagueDashboard() {
         onStarted={handleMatchStarted}
       />
 
-      <Dialog
+      <MatchDetailsDialog
+        match={selectedMatch}
         open={!!selectedMatch}
         onOpenChange={(open) => !open && setSelectedMatch(null)}
-      >
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedMatch?.home_team_name} {selectedMatch?.home_score} -{" "}
-              {selectedMatch?.away_score} {selectedMatch?.away_team_name}
-            </DialogTitle>
-          </DialogHeader>
-          {selectedMatch && <EventTimeline events={selectedMatch.events} />}
-        </DialogContent>
-      </Dialog>
+      />
     </div>
   );
 }

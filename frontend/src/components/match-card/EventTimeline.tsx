@@ -8,6 +8,9 @@ interface EventTimelineProps {
   newestFirst?: boolean;
   onRemoveEvent?: (eventId: number) => void;
   editable?: boolean;
+  isFinished?: boolean;
+  homeScore?: number;
+  awayScore?: number;
 }
 
 function EventIcon({ type }: { type: MatchEvent["event_type"] }) {
@@ -42,10 +45,21 @@ export function EventTimeline({
   newestFirst = false,
   onRemoveEvent,
   editable = false,
+  isFinished = false,
+  homeScore = 0,
+  awayScore = 0,
 }: EventTimelineProps) {
   const sorted = newestFirst ? [...events].reverse() : events;
 
   if (sorted.length === 0) {
+    if (
+      isFinished &&
+      homeScore === 0 &&
+      awayScore === 0
+    ) {
+      return null;
+    }
+
     return (
       <p className="py-4 text-center text-sm text-muted-foreground">
         No events recorded yet.

@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { matchesApi } from "@/api/client";
 import { EventTimeline } from "@/components/match-card/EventTimeline";
+import { MatchCard } from "@/components/match-card/MatchCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,13 +30,16 @@ export default function MatchDetails() {
     <div className="mx-auto max-w-lg space-y-6 p-4 md:p-6">
       <Card>
         <CardHeader>
-          <CardTitle className="break-words text-base md:text-lg">
-            {match.home_team_name} {match.home_score} - {match.away_score}{" "}
-            {match.away_team_name}
-          </CardTitle>
+          <CardTitle>Match Details</CardTitle>
         </CardHeader>
-        <CardContent>
-          <EventTimeline events={match.events} />
+        <CardContent className="space-y-4">
+          <MatchCard match={match} />
+          <EventTimeline
+            events={match.events}
+            isFinished={match.status === "FINISHED"}
+            homeScore={match.home_score}
+            awayScore={match.away_score}
+          />
         </CardContent>
       </Card>
       <Button

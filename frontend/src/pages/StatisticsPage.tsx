@@ -27,7 +27,7 @@ export default function StatisticsPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <PointsTable standings={standings ?? []} isLoading={standingsLoading} />
-        <AwardsPanel awards={awards} isLoading={awardsLoading} />
+        <AwardsPanel leagueId={leagueId} awards={awards} isLoading={awardsLoading} />
       </div>
     </div>
   );

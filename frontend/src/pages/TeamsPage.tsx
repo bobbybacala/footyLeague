@@ -188,8 +188,30 @@ export default function TeamsPage() {
           });
         }
       }
+
+      return {
+        jerseyColor: jerseyColorDraft,
+        drafts: Object.fromEntries(
+          playerIds.map((id) => {
+            const draft = drafts[id];
+            const saved =
+              changedPlayerIds.includes(id)
+                ? { name: draft.name.trim(), position: draft.position }
+                : { ...draft };
+            return [id, saved];
+          })
+        ),
+        captainId,
+        viceCaptainId,
+      };
     },
-    onSuccess: () => {
+    onSuccess: (snapshot) => {
+      commitSavedChanges(snapshot);
+      setDrafts(
+        Object.fromEntries(
+          Object.entries(snapshot.drafts).map(([id, draft]) => [id, { ...draft }])
+        )
+      );
       invalidateTeamData();
       toast("Changes saved!", "success");
       setShowSaveConfirm(false);
@@ -254,6 +276,25 @@ export default function TeamsPage() {
     );
     setCaptainId(originalCaptainId);
     setViceCaptainId(originalViceCaptainId);
+  };
+
+  const commitSavedChanges = (snapshot: {
+    jerseyColor: string;
+    drafts: Record<number, SquadPlayerDraft>;
+    captainId: string;
+    viceCaptainId: string;
+  }) => {
+    setOriginalJerseyColor(snapshot.jerseyColor);
+    setOriginals(
+      Object.fromEntries(
+        Object.entries(snapshot.drafts).map(([id, draft]) => [id, { ...draft }])
+      )
+    );
+    setOriginalCaptainId(snapshot.captainId);
+    setOriginalViceCaptainId(snapshot.viceCaptainId);
+    setSelectedTeam((prev) =>
+      prev ? { ...prev, jersey_color: snapshot.jerseyColor } : null
+    );
   };
 
   const selectTeam = (team: Team) => {

@@ -38,7 +38,7 @@ export function TeamForm({ onSubmit, isSubmitting }: TeamFormProps) {
       </div>
       <div className="flex items-center justify-between gap-3">
         <Label htmlFor="team-jersey" className="mb-0">
-          Default Jersey Color
+          Jersey Color
         </Label>
         <input
           id="team-jersey"
