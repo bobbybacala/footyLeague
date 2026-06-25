@@ -303,7 +303,7 @@ export default function MatchPage() {
 
   if (isLoading || !match) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
@@ -440,7 +440,7 @@ export default function MatchPage() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-6 pb-28">
+    <div className="mx-auto max-w-4xl space-y-6 p-4 pb-24 md:p-6 md:pb-28">
       <Button
         variant="ghost"
         size="sm"
@@ -464,30 +464,30 @@ export default function MatchPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-border bg-card p-8 text-center">
-        <p className="text-sm font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="rounded-xl border border-border bg-card p-4 text-center md:p-8">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground md:text-sm">
           {match.status}
         </p>
-        <h1 className="mt-2 text-xl font-semibold md:text-2xl">
+        <h1 className="mt-2 text-base font-semibold sm:text-lg md:text-2xl">
           {match.home_team_name} vs {match.away_team_name}
         </h1>
-        <p className="mt-4 text-6xl font-bold tracking-tight text-primary">
+        <p className="mt-3 text-4xl font-bold tracking-tight text-primary sm:text-5xl md:mt-4 md:text-6xl">
           {displayHomeScore} - {displayAwayScore}
         </p>
-        <div className="mt-6 flex justify-center gap-6">
-          <div className="flex items-center gap-2">
+        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:mt-6 sm:flex-row sm:gap-6">
+          <div className="flex max-w-full items-center gap-2">
             <div
-              className="h-6 w-6 rounded-full border border-border"
+              className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
               style={{ backgroundColor: homeJersey }}
             />
-            <span className="text-sm text-muted-foreground">{match.home_team_name}</span>
+            <span className="truncate text-xs text-muted-foreground md:text-sm">{match.home_team_name}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex max-w-full items-center gap-2">
             <div
-              className="h-6 w-6 rounded-full border border-border"
+              className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
               style={{ backgroundColor: awayJersey }}
             />
-            <span className="text-sm text-muted-foreground">{match.away_team_name}</span>
+            <span className="truncate text-xs text-muted-foreground md:text-sm">{match.away_team_name}</span>
           </div>
         </div>
       </div>
@@ -566,7 +566,7 @@ export default function MatchPage() {
 
       {isFinished && eventsDirty && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-          <div className="mx-auto flex max-w-4xl gap-3 p-4">
+          <div className="mx-auto flex max-w-4xl gap-2 p-3 md:gap-3 md:p-4">
             <Button
               variant="outline"
               className="flex-1"
@@ -588,7 +588,7 @@ export default function MatchPage() {
 
       {isLive && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
-          <div className="mx-auto flex max-w-4xl gap-3 p-4">
+          <div className="mx-auto flex max-w-4xl gap-2 p-3 md:gap-3 md:p-4">
             <Button
               variant="outline"
               className="flex-1"

@@ -30,17 +30,17 @@ export default function GenerateFixturesPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-lg p-6">
+      <div className="mx-auto max-w-lg p-4 md:p-6">
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-6 md:p-8">
+    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
       <div>
         <p className="text-sm font-medium text-primary">Step 5 of 6</p>
-        <h1 className="text-2xl font-bold">Generate Fixtures</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Generate Fixtures</h1>
         <p className="text-muted-foreground">Review and confirm fixture generation</p>
       </div>
 
@@ -52,7 +52,7 @@ export default function GenerateFixturesPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="text-center">
-          <p className="text-5xl font-bold text-primary">
+          <p className="text-4xl font-bold text-primary md:text-5xl">
             {preview?.fixture_count ?? 0}
           </p>
           <p className="mt-2 text-muted-foreground">Fixtures will be generated</p>

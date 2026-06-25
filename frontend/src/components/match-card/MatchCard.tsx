@@ -1,37 +1,65 @@
-import type { Match } from "@/types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import type { Match, MatchStatus } from "@/types";
+import { cn } from "@/lib/utils";
 
 interface MatchCardProps {
   match: Match;
   onClick?: () => void;
+  className?: string;
 }
 
-export function MatchCard({ match, onClick }: MatchCardProps) {
+function statusLabel(status: MatchStatus): string {
+  switch (status) {
+    case "FINISHED":
+      return "FT";
+    case "LIVE":
+      return "LIVE";
+    case "PENDING":
+      return "vs";
+  }
+}
+
+function JerseyDot({ color }: { color: string }) {
   return (
-    <Card
-      className="cursor-pointer transition-colors hover:border-primary/50"
+    <span
+      className="h-[18px] w-[18px] shrink-0 rounded-full border border-white/10 shadow-sm md:h-5 md:w-5"
+      style={{ backgroundColor: color || "#71717a" }}
+      aria-hidden
+    />
+  );
+}
+
+export function MatchCard({ match, onClick, className }: MatchCardProps) {
+  const Component = onClick ? "button" : "div";
+
+  return (
+    <Component
+      type={onClick ? "button" : undefined}
       onClick={onClick}
+      className={cn(
+        "grid w-full grid-cols-[2.25rem_1fr_2.25rem] items-center gap-2 rounded-lg border border-border/40 bg-card/60 px-3 py-3.5 text-left transition-colors md:grid-cols-[2.5rem_1fr_2.5rem] md:gap-3 md:px-4 md:py-4",
+        onClick && "cursor-pointer hover:border-border/80 hover:bg-secondary/30",
+        className
+      )}
     >
-      <CardContent className="flex items-center justify-between p-4">
-        <div className="flex flex-1 flex-col gap-1">
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-medium">{match.home_team_name}</span>
-            <span className="text-lg font-bold text-primary">
-              {match.home_score}
-            </span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            <span className="font-medium">{match.away_team_name}</span>
-            <span className="text-lg font-bold text-primary">
-              {match.away_score}
-            </span>
-          </div>
-        </div>
-        <Badge variant="secondary" className="ml-4 shrink-0">
-          {match.status}
-        </Badge>
-      </CardContent>
-    </Card>
+      <span className="w-fit rounded-sm bg-muted/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide text-muted-foreground">
+        {statusLabel(match.status)}
+      </span>
+
+      <div className="flex min-w-0 items-center justify-center gap-3 md:gap-4">
+        <span className="max-w-[5rem] truncate text-right text-xs font-medium md:max-w-[7rem] md:text-sm">
+          {match.home_team_name}
+        </span>
+        <JerseyDot color={match.home_jersey_color} />
+        <span className="shrink-0 text-sm font-bold tabular-nums tracking-tight md:text-base">
+          {match.home_score} - {match.away_score}
+        </span>
+        <JerseyDot color={match.away_jersey_color} />
+        <span className="max-w-[5rem] truncate text-left text-xs font-medium md:max-w-[7rem] md:text-sm">
+          {match.away_team_name}
+        </span>
+      </div>
+
+      <div aria-hidden className="w-full" />
+    </Component>
   );
 }

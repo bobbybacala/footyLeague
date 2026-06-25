@@ -100,9 +100,9 @@ export default function MatchesPage() {
   const matchToDelete = finishedMatches?.find((m) => m.id === deleteMatchId) ?? null;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Matches</h1>
+        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
         <p className="mt-1 text-muted-foreground">
           {isConcluded ? "Completed matches" : "Upcoming and completed matches"}
         </p>
@@ -161,7 +161,7 @@ export default function MatchesPage() {
               {filteredFinished.map((match) => (
                 <div key={match.id} className="space-y-2">
                   <MatchCard match={match} onClick={() => setSelectedMatch(match)} />
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 sm:flex-row">
                     <Button
                       variant="outline"
                       size="sm"
@@ -183,6 +183,7 @@ export default function MatchesPage() {
                         <Button
                           variant="destructive"
                           size="sm"
+                          className="flex-1"
                           onClick={() => setDeleteMatchId(match.id)}
                         >
                           Reset

@@ -27,9 +27,9 @@ export default function UpcomingFixturesPage() {
   const confirmMatch = pendingMatches?.find((m) => m.id === confirmMatchId);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Upcoming Fixtures</h1>
+        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Upcoming Fixtures</h1>
         <p className="mt-1 text-muted-foreground">All remaining fixtures in the league</p>
       </div>
 

@@ -98,18 +98,18 @@ export function SquadPanel({
           <li
             key={player.id}
             className={cn(
-              "rounded-lg border p-3 transition-colors",
+              "rounded-lg border p-3 transition-colors md:p-3",
               isCaptain && "border-primary ring-2 ring-primary/40",
               isVice && !isCaptain && "border-amber-500 ring-2 ring-amber-500/40",
               !isCaptain && !isVice && "border-border",
               changed && !readOnly && "border-primary/40"
             )}
           >
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               {readOnly || !editableFields ? (
                 <>
-                  <span className="min-w-[8rem] font-medium">{draft.name}</span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="min-w-0 font-medium sm:min-w-[8rem]">{draft.name}</span>
+                  <span className="text-xs text-muted-foreground sm:text-sm">
                     {draft.position.replace("_", " ")}
                   </span>
                 </>
@@ -120,7 +120,7 @@ export function SquadPanel({
                     onChange={(e) =>
                       onDraftChange?.(player.id, { name: e.target.value })
                     }
-                    className="max-w-xs"
+                    className="min-w-0 flex-1 sm:max-w-xs"
                   />
                   <Select
                     value={draft.position}
@@ -130,7 +130,7 @@ export function SquadPanel({
                       })
                     }
                   >
-                    <SelectTrigger className="w-36">
+                    <SelectTrigger className="w-full sm:w-36">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

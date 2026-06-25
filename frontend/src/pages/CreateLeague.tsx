@@ -33,10 +33,10 @@ export default function CreateLeague() {
   };
 
   return (
-    <div className="mx-auto max-w-lg p-6 md:p-8">
+    <div className="mx-auto max-w-lg p-4 md:p-8">
       <div className="mb-6">
         <p className="text-sm font-medium text-primary">Step 1 of 6</p>
-        <h1 className="text-2xl font-bold">Create League</h1>
+        <h1 className="text-xl font-bold md:text-2xl">Create League</h1>
       </div>
       <Card>
         <CardHeader>
@@ -62,12 +62,13 @@ export default function CreateLeague() {
                 placeholder="Pune Ground"
               />
             </div>
-            <div className="flex gap-2">
-              <Button type="button" variant="outline" onClick={() => navigate("/")}>
+            <div className="flex flex-col gap-2 md:flex-row">
+              <Button type="button" variant="outline" className="w-full md:w-auto" onClick={() => navigate("/")}>
                 Cancel
               </Button>
               <Button
                 type="submit"
+                className="w-full md:w-auto"
                 disabled={mutation.isPending || !name.trim() || !venue.trim()}
               >
                 Next

@@ -59,15 +59,15 @@ export default function Dashboard({ leagueId }: DashboardProps) {
   };
 
   return (
-    <div className={cn("mx-auto max-w-7xl space-y-10 p-6 md:p-8", isConcluded && "pb-28")}>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Dashboard</h1>
+    <div className={cn("mx-auto max-w-7xl space-y-6 p-4 md:space-y-10 md:p-8", isConcluded && "pb-24 md:pb-28")}>
+      <div className="hidden md:block">
+        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Dashboard</h1>
         <p className="mt-1 text-muted-foreground">
           {league?.name} · {league?.venue}
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="hidden gap-4 sm:grid-cols-2 md:grid xl:grid-cols-4">
         <StatCard
           label="Total Teams"
           value={league?.team_count ?? 0}
@@ -95,14 +95,14 @@ export default function Dashboard({ leagueId }: DashboardProps) {
       </div>
 
       {champion && (
-        <div className="rounded-xl border border-primary/40 bg-primary/10 px-6 py-5 text-center">
+        <div className="hidden rounded-xl border border-primary/40 bg-primary/10 px-4 py-4 text-center md:block md:px-6 md:py-5">
           <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
             <Crown className="h-6 w-6 text-primary" />
           </div>
           <p className="text-sm font-medium uppercase tracking-wider text-primary">
             Congratulations, Champions!
           </p>
-          <p className="mt-2 text-2xl font-bold">{champion.team_name}</p>
+          <p className="mt-2 text-xl font-bold md:text-2xl">{champion.team_name}</p>
           <p className="mt-1 text-sm text-muted-foreground">
             {champion.points} pts · {champion.wins}W {champion.draws}D {champion.losses}L
           </p>
@@ -110,14 +110,16 @@ export default function Dashboard({ leagueId }: DashboardProps) {
       )}
 
       <div className="grid gap-6 xl:grid-cols-3">
-        <PointsTable standings={standings ?? []} isLoading={standingsLoading} />
+        <div className="hidden md:block">
+          <PointsTable standings={standings ?? []} isLoading={standingsLoading} />
+        </div>
 
         <div className="flex min-h-0 flex-col space-y-4">
           <h2 className="text-lg font-semibold">Recent Results</h2>
           {finishedLoading ? (
             <Skeleton className="h-[32rem] w-full" />
           ) : recentResults.length > 0 ? (
-            <div className="scrollbar-thin h-[32rem] space-y-3 overflow-y-auto pr-1">
+            <div className="scrollbar-thin max-h-[calc(100dvh-6rem)] space-y-2.5 overflow-y-auto pr-1 md:h-[32rem] md:max-h-none">
               {recentResults.map((match) => (
                 <MatchCard
                   key={match.id}
@@ -133,7 +135,9 @@ export default function Dashboard({ leagueId }: DashboardProps) {
           )}
         </div>
 
-        <AwardsPanel awards={awards} isLoading={awardsLoading} />
+        <div className="hidden md:block">
+          <AwardsPanel awards={awards} isLoading={awardsLoading} />
+        </div>
       </div>
 
       <Dialog
@@ -152,8 +156,8 @@ export default function Dashboard({ leagueId }: DashboardProps) {
       </Dialog>
 
       {isConcluded && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:left-64">
-          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-4 sm:flex-row">
+        <div className="fixed bottom-0 left-0 right-0 z-30 hidden border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 md:left-64 md:block">
+          <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-3 sm:flex-row md:px-6 md:py-4">
             <p className="text-sm text-muted-foreground">
               League concluded — you can exit the league when you&apos;re done.
             </p>

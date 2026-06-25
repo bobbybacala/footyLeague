@@ -85,17 +85,17 @@ export default function LeagueSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <Skeleton className="h-64 w-full max-w-2xl rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-2xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+          <h1 className="text-xl font-bold tracking-tight md:text-3xl">
             League Settings
           </h1>
           <p className="mt-1 text-muted-foreground">Competition configuration</p>
@@ -118,7 +118,7 @@ export default function LeagueSettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+          <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
             League Details
             <Badge>{league?.status}</Badge>
           </CardTitle>

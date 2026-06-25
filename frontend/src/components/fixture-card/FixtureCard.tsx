@@ -21,16 +21,16 @@ export function FixtureCard({
 }: FixtureCardProps) {
   return (
     <Card className="border-border/60 transition-colors hover:border-primary/30">
-      <CardContent className="flex flex-col gap-4 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1 text-center">
-            <p className="text-lg font-semibold">
+      <CardContent className="flex flex-col gap-3 p-4 md:gap-4 md:p-6">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1 text-center">
+            <p className="text-base font-semibold md:text-lg">
               {match.home_team_name}
             </p>
             <p className="my-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               vs
             </p>
-            <p className="text-lg font-semibold">
+            <p className="text-base font-semibold md:text-lg">
               {match.away_team_name}
             </p>
           </div>

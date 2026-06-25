@@ -19,9 +19,9 @@ export default function StatisticsPage() {
   });
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Statistics</h1>
+        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Statistics</h1>
         <p className="mt-1 text-muted-foreground">League standings and individual awards</p>
       </div>
 

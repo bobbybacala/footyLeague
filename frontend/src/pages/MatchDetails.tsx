@@ -19,17 +19,17 @@ export default function MatchDetails() {
 
   if (isLoading || !match) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <Skeleton className="h-64 w-full" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-6">
+    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-6">
       <Card>
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="break-words text-base md:text-lg">
             {match.home_team_name} {match.home_score} - {match.away_score}{" "}
             {match.away_team_name}
           </CardTitle>

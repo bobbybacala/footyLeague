@@ -55,25 +55,25 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 p-6">
+    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 p-4 md:gap-8 md:p-6">
       <div className="text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-          <Trophy className="h-7 w-7 text-primary" />
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 md:mb-4 md:h-14 md:w-14">
+          <Trophy className="h-6 w-6 text-primary md:h-7 md:w-7" />
         </div>
-        <h1 className="text-4xl font-bold tracking-tight">Football League</h1>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
         <p className="mt-2 text-muted-foreground">
           Create, manage, and track your football leagues
         </p>
       </div>
 
       <div className="flex w-full flex-col gap-4 sm:flex-row">
-        <Button asChild size="lg" className="flex-1">
+        <Button asChild size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
           <Link to="/leagues/new">Create New League</Link>
         </Button>
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="secondary" size="lg" className="flex-1">
+            <Button variant="secondary" size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
               Load Existing League
             </Button>
           </DialogTrigger>

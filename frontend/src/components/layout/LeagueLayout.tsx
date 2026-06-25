@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -62,6 +62,7 @@ export default function LeagueLayout() {
   const { id } = useParams<{ id: string }>();
   const leagueId = Number(id);
   const navigate = useNavigate();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const { data: league, isLoading, isFetching } = useQuery({
     queryKey: ["league", leagueId],
@@ -79,7 +80,7 @@ export default function LeagueLayout() {
     return (
       <div className="flex h-screen overflow-hidden">
         <Skeleton className="hidden w-64 shrink-0 md:block" />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 md:p-8">
           <Skeleton className="mb-6 h-10 w-64" />
           <Skeleton className="h-96 w-full" />
         </div>
@@ -114,28 +115,40 @@ export default function LeagueLayout() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header className="flex shrink-0 items-center gap-4 border-b border-border bg-card px-4 py-3 md:hidden">
-          <Sheet>
+        <header className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-3 py-2.5 md:hidden">
+          <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
             <SheetTrigger asChild>
               <Button variant="outline" size="sm">
                 <Menu className="h-4 w-4" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="p-0">
-              <div className="border-b border-border p-6">
+            <SheetContent side="left" className="w-[min(100vw-2rem,18rem)] p-0">
+              <div className="border-b border-border p-4">
                 <div className="flex items-center gap-2">
                   <Trophy className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Football League</span>
+                  <span className="text-sm font-semibold">Football League</span>
                 </div>
-                <p className="mt-3 text-sm font-medium">{league?.name}</p>
+                <p className="mt-2 truncate text-sm font-medium">{league?.name}</p>
               </div>
-              <div className="p-4">
-                <NavLinks onNavigate={() => {}} />
+              <div className="p-3">
+                <NavLinks onNavigate={() => setMobileNavOpen(false)} />
+              </div>
+              <div className="border-t border-border p-3">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    setMobileNavOpen(false);
+                    navigate("/");
+                  }}
+                >
+                  Exit League
+                </Button>
               </div>
             </SheetContent>
           </Sheet>
-          <div className="min-w-0">
-            <p className="truncate font-medium">{league?.name}</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">{league?.name}</p>
             <p className="truncate text-xs text-muted-foreground">{league?.venue}</p>
           </div>
         </header>

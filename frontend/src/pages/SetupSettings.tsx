@@ -49,17 +49,17 @@ export default function SetupSettings() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-lg p-6">
+      <div className="mx-auto max-w-lg p-4 md:p-6">
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-6 md:p-8">
+    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
       <div>
         <p className="text-sm font-medium text-primary">Step 4 of 6</p>
-        <h1 className="text-2xl font-bold">League Settings</h1>
+        <h1 className="text-xl font-bold md:text-2xl">League Settings</h1>
         <p className="text-muted-foreground">Configure format for {league?.name}</p>
       </div>
 
@@ -111,7 +111,7 @@ export default function SetupSettings() {
         <CardHeader>
           <CardTitle>Points System</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
+        <CardContent className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="text-sm text-muted-foreground">Win</label>
             <input

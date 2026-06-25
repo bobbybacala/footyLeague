@@ -50,17 +50,17 @@ export default function SetupLeagueDetails() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-lg p-6 md:p-8">
+      <div className="mx-auto max-w-lg p-4 md:p-8">
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-6 md:p-8">
+    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
       <div>
         <p className="text-sm font-medium text-primary">Step 1 of 6</p>
-        <h1 className="text-2xl font-bold">League Details</h1>
+        <h1 className="text-xl font-bold md:text-2xl">League Details</h1>
         <p className="text-muted-foreground">Edit your league name and venue</p>
       </div>
 

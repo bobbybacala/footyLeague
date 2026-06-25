@@ -64,6 +64,7 @@ export default function TeamsPage() {
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [deletePlayerId, setDeletePlayerId] = useState<number | null>(null);
   const [showAddTeamModal, setShowAddTeamModal] = useState(false);
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
   const [showAddTeamConfirm, setShowAddTeamConfirm] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
   const [newTeamJerseyColor, setNewTeamJerseyColor] = useState("#22c55e");
@@ -224,6 +225,7 @@ export default function TeamsPage() {
     onSuccess: () => {
       invalidateTeamData();
       toast("Player added!", "success");
+      setShowAddPlayerModal(false);
     },
     onError: (err) => toast(getErrorMessage(err), "error"),
   });
@@ -277,10 +279,10 @@ export default function TeamsPage() {
   const playerToDelete = teamPlayers?.find((p) => p.id === deletePlayerId);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Teams</h1>
+          <h1 className="text-xl font-bold tracking-tight md:text-3xl">Teams</h1>
           <p className="mt-1 text-muted-foreground">
             {isConcluded
               ? "View teams and squads"
@@ -288,23 +290,25 @@ export default function TeamsPage() {
           </p>
         </div>
         {!isConcluded && (
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
             {selectedTeam && hasChanges && (
               <>
-                <Button variant="outline" onClick={() => setShowDiscardChangesConfirm(true)}>
+                <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowDiscardChangesConfirm(true)}>
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Discard Changes
                 </Button>
-                <Button onClick={handleSaveClick}>
+                <Button className="w-full sm:w-auto" onClick={handleSaveClick}>
                   <Save className="mr-2 h-4 w-4" />
                   Save Changes
                 </Button>
               </>
             )}
-            <Button onClick={() => setShowAddTeamModal(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add New team
-            </Button>
+            <div className="hidden md:block">
+              <Button className="w-full sm:w-auto" onClick={() => setShowAddTeamModal(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add New team
+              </Button>
+            </div>
           </div>
         )}
       </div>
@@ -315,7 +319,7 @@ export default function TeamsPage() {
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Select Team</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-3">
               {isLoading ? (
                 <Skeleton className="h-10 w-full" />
               ) : teams && teams.length > 0 ? (
@@ -340,24 +344,46 @@ export default function TeamsPage() {
               ) : (
                 <p className="text-sm text-muted-foreground">No teams yet.</p>
               )}
+              {!isConcluded && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full md:hidden"
+                  onClick={() => setShowAddTeamModal(true)}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add team
+                </Button>
+              )}
             </CardContent>
           </Card>
 
           {!isConcluded && selectedTeam && (
-            <Card className="border-border/60">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Add Player to {selectedTeam.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <PlayerForm
-                  onSubmit={(data) => addPlayerMutation.mutate(data)}
-                  isSubmitting={addPlayerMutation.isPending}
-                  goalkeeperTaken={playerIds.some(
-                    (id) => drafts[id]?.position === "GOALKEEPER"
-                  )}
-                />
-              </CardContent>
-            </Card>
+            <>
+              <Button
+                type="button"
+                className="w-full md:hidden"
+                onClick={() => setShowAddPlayerModal(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Player to {selectedTeam.name}
+              </Button>
+
+              <Card className="hidden border-border/60 md:block">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Add Player to {selectedTeam.name}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PlayerForm
+                    onSubmit={(data) => addPlayerMutation.mutate(data)}
+                    isSubmitting={addPlayerMutation.isPending}
+                    goalkeeperTaken={playerIds.some(
+                      (id) => drafts[id]?.position === "GOALKEEPER"
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </>
           )}
 
         </div>
@@ -373,30 +399,27 @@ export default function TeamsPage() {
 
               {!isConcluded && (
                 <Card className="border-border/60">
-                  <CardContent className="p-0">
+                  <CardContent className="overflow-x-auto p-0 md:overflow-visible">
                     <Table>
                       <TableBody>
                         <TableRow>
-                          <TableCell className="w-44 font-medium text-foreground">
+                          <TableCell className="w-auto min-w-[7rem] font-medium text-foreground md:w-44">
                             Team Name
                           </TableCell>
-                          <TableCell>{selectedTeam.name}</TableCell>
+                          <TableCell className="break-words">{selectedTeam.name}</TableCell>
                         </TableRow>
                         <TableRow className="hover:bg-transparent">
-                          <TableCell className="font-medium text-foreground">
-                            Default Jersey Color
+                          <TableCell className="font-medium text-foreground md:pr-12">
+                            Jersey Color
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                               <input
                                 type="color"
                                 value={jerseyColorDraft}
                                 onChange={(e) => setJerseyColorDraft(e.target.value)}
                                 className="color-swatch h-8 w-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent outline-none focus:outline-none focus:ring-0"
                               />
-                              <span className="text-muted-foreground">
-                                Used as default for matches
-                              </span>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -478,7 +501,7 @@ export default function TeamsPage() {
       </Dialog>
 
       <Dialog open={showAddTeamModal} onOpenChange={setShowAddTeamModal}>
-        <DialogContent className="z-[100]" overlayClassName="z-[100]">
+        <DialogContent className="z-[200]" overlayClassName="z-[200]">
           <DialogHeader>
             <DialogTitle>Add Team</DialogTitle>
             <DialogDescription>
@@ -494,6 +517,26 @@ export default function TeamsPage() {
             }}
             isSubmitting={addTeamMutation.isPending}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showAddPlayerModal} onOpenChange={setShowAddPlayerModal}>
+        <DialogContent className="z-[200]" overlayClassName="z-[200]">
+          <DialogHeader>
+            <DialogTitle>Add Player to {selectedTeam?.name}</DialogTitle>
+            <DialogDescription>
+              Add a player to the selected team squad.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTeam && (
+            <PlayerForm
+              onSubmit={(data) => addPlayerMutation.mutate(data)}
+              isSubmitting={addPlayerMutation.isPending}
+              goalkeeperTaken={playerIds.some(
+                (id) => drafts[id]?.position === "GOALKEEPER"
+              )}
+            />
+          )}
         </DialogContent>
       </Dialog>
 

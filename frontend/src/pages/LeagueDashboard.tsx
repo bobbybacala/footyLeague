@@ -66,7 +66,7 @@ export default function LeagueDashboard() {
 
   if (leagueLoading) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <Skeleton className="mb-6 h-10 w-64" />
         <div className="grid gap-6 lg:grid-cols-3">
           <Skeleton className="h-64" />
@@ -78,10 +78,10 @@ export default function LeagueDashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 md:space-y-8 md:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-primary">{league?.name}</h1>
+          <h1 className="text-xl font-bold text-primary md:text-3xl">{league?.name}</h1>
           <p className="text-muted-foreground">{league?.venue}</p>
         </div>
         <Button variant="outline" onClick={() => navigate("/")}>
@@ -97,7 +97,7 @@ export default function LeagueDashboard() {
           {finishedLoading ? (
             <Skeleton className="h-32 w-full" />
           ) : finishedMatches && finishedMatches.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {finishedMatches.map((match) => (
                 <MatchCard
                   key={match.id}

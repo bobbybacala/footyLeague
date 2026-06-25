@@ -33,18 +33,19 @@ export function PointsTable({ standings, isLoading }: PointsTableProps) {
             No standings yet. Complete a match to see results.
           </p>
         ) : (
+          <div className="overflow-x-auto md:overflow-visible">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Pos</TableHead>
                 <TableHead>Team</TableHead>
-                <TableHead className="text-center">P</TableHead>
-                <TableHead className="text-center">W</TableHead>
-                <TableHead className="text-center">D</TableHead>
-                <TableHead className="text-center">L</TableHead>
-                <TableHead className="text-center">GF</TableHead>
-                <TableHead className="text-center">GA</TableHead>
-                <TableHead className="text-center">GD</TableHead>
+                <TableHead className="hidden text-center sm:table-cell">P</TableHead>
+                <TableHead className="hidden text-center md:table-cell">W</TableHead>
+                <TableHead className="hidden text-center md:table-cell">D</TableHead>
+                <TableHead className="hidden text-center md:table-cell">L</TableHead>
+                <TableHead className="hidden text-center lg:table-cell">GF</TableHead>
+                <TableHead className="hidden text-center lg:table-cell">GA</TableHead>
+                <TableHead className="hidden text-center lg:table-cell">GD</TableHead>
                 <TableHead className="text-center">Pts</TableHead>
               </TableRow>
             </TableHeader>
@@ -52,14 +53,16 @@ export function PointsTable({ standings, isLoading }: PointsTableProps) {
               {standings.map((row) => (
                 <TableRow key={row.team_id}>
                   <TableCell>{row.position}</TableCell>
-                  <TableCell className="font-medium">{row.team_name}</TableCell>
-                  <TableCell className="text-center">{row.played}</TableCell>
-                  <TableCell className="text-center">{row.wins}</TableCell>
-                  <TableCell className="text-center">{row.draws}</TableCell>
-                  <TableCell className="text-center">{row.losses}</TableCell>
-                  <TableCell className="text-center">{row.goals_for}</TableCell>
-                  <TableCell className="text-center">{row.goals_against}</TableCell>
-                  <TableCell className="text-center">{row.goal_difference}</TableCell>
+                  <TableCell className="max-w-[8rem] truncate font-medium sm:max-w-none">
+                    {row.team_name}
+                  </TableCell>
+                  <TableCell className="hidden text-center sm:table-cell">{row.played}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{row.wins}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{row.draws}</TableCell>
+                  <TableCell className="hidden text-center md:table-cell">{row.losses}</TableCell>
+                  <TableCell className="hidden text-center lg:table-cell">{row.goals_for}</TableCell>
+                  <TableCell className="hidden text-center lg:table-cell">{row.goals_against}</TableCell>
+                  <TableCell className="hidden text-center lg:table-cell">{row.goal_difference}</TableCell>
                   <TableCell className="text-center font-semibold text-primary">
                     {row.points}
                   </TableCell>
@@ -67,6 +70,7 @@ export function PointsTable({ standings, isLoading }: PointsTableProps) {
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -121,15 +121,16 @@ export default function AddTeams() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-medium text-primary">Step 2 of 6</p>
-          <h1 className="text-2xl font-bold">Add Teams</h1>
-          <p className="text-muted-foreground">Add at least 2 teams to continue</p>
+          <h1 className="text-xl font-bold md:text-2xl">Add Teams</h1>
+          <p className="text-sm text-muted-foreground md:text-base">Add at least 2 teams to continue</p>
         </div>
         <Button
           variant="outline"
+          className="w-full sm:w-auto"
           onClick={() => navigate(`/leagues/${leagueId}/setup/league`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -251,7 +252,7 @@ export default function AddTeams() {
       <div className="flex justify-end">
         <Button
           size="sm"
-          className="min-w-44 px-8"
+          className="w-full px-8 sm:w-auto md:min-w-44"
           onClick={() => navigate(`/leagues/${leagueId}/setup/players`)}
           disabled={!teams || teams.length < 2}
         >

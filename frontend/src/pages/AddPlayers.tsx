@@ -149,7 +149,7 @@ export default function AddPlayers() {
 
   if (teamsLoading) {
     return (
-      <div className="mx-auto max-w-5xl p-6 md:p-8">
+      <div className="mx-auto max-w-5xl p-4 md:p-8">
         <Skeleton className="h-64 w-full rounded-xl" />
       </div>
     );
@@ -157,10 +157,10 @@ export default function AddPlayers() {
 
   if (!teams || teams.length < 2) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 p-6 md:p-8">
+      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
         <div>
           <p className="text-sm font-medium text-primary">Step 3 of 6</p>
-          <h1 className="text-2xl font-bold">Add Players</h1>
+          <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
         </div>
         <p className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
           Add at least 2 teams before adding players.
@@ -177,18 +177,19 @@ export default function AddPlayers() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-medium text-primary">Step 3 of 6</p>
-          <h1 className="text-2xl font-bold">Add Players</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
+          <p className="text-sm text-muted-foreground md:text-base">
             Add players for each team one by one — 2+ players and exactly one
             goalkeeper per team
           </p>
         </div>
         <Button
           variant="outline"
+          className="w-full sm:w-auto"
           onClick={() => navigate(`/leagues/${leagueId}/setup/teams`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -196,15 +197,15 @@ export default function AddPlayers() {
         </Button>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Badge variant="secondary">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:text-sm">
+        <Badge variant="secondary" className="shrink-0">
           Team {teamIndex + 1} of {teams.length}
         </Badge>
         {teams.map((team, idx) => (
           <span
             key={team.id}
             className={
-              idx === teamIndex ? "font-medium text-foreground" : undefined
+              idx === teamIndex ? "font-medium text-foreground" : "truncate"
             }
           >
             {team.name}
@@ -275,16 +276,17 @@ export default function AddPlayers() {
         </Card>
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:gap-3">
         {teamIndex > 0 && (
-          <Button variant="outline" onClick={() => setTeamIndex((i) => i - 1)}>
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => setTeamIndex((i) => i - 1)}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Previous Team
           </Button>
         )}
-        <div className="flex-1" />
+        <div className="hidden flex-1 sm:block" />
         {!isLastTeam ? (
           <Button
+            className="w-full sm:w-auto"
             onClick={handleNextTeam}
             disabled={!currentTeamValid || roleMutation.isPending}
           >
@@ -293,6 +295,7 @@ export default function AddPlayers() {
           </Button>
         ) : (
           <Button
+            className="w-full sm:w-auto"
             onClick={handleContinue}
             disabled={!currentTeamValid || roleMutation.isPending}
           >

@@ -38,9 +38,9 @@ export default function PlayersPage() {
   }, [players, search]);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 p-6 md:p-8">
+    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Players</h1>
+        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Players</h1>
         <p className="mt-1 text-muted-foreground">Global player directory</p>
       </div>
 
@@ -57,17 +57,17 @@ export default function PlayersPage() {
       {isLoading ? (
         <Skeleton className="h-96 w-full rounded-xl" />
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border">
+        <div className="overflow-x-auto rounded-xl border border-border md:overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Team</TableHead>
+                <TableHead className="hidden sm:table-cell">Team</TableHead>
                 <TableHead>Position</TableHead>
-                <TableHead className="text-right">Goals</TableHead>
-                <TableHead className="text-right">Assists</TableHead>
-                <TableHead className="text-right">Yellow</TableHead>
-                <TableHead className="text-right">Red</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Goals</TableHead>
+                <TableHead className="hidden text-right md:table-cell">Assists</TableHead>
+                <TableHead className="hidden text-right lg:table-cell">Yellow</TableHead>
+                <TableHead className="hidden text-right lg:table-cell">Red</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -75,7 +75,10 @@ export default function PlayersPage() {
                 filtered.map((player) => (
                   <TableRow key={player.id}>
                     <TableCell className="font-medium">
-                      {player.name}
+                      <span className="block truncate">{player.name}</span>
+                      <span className="text-xs text-muted-foreground sm:hidden">
+                        {player.team_name}
+                      </span>
                       {player.is_captain && (
                         <Badge variant="outline" className="ml-2">
                           C
@@ -87,12 +90,14 @@ export default function PlayersPage() {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell>{player.team_name}</TableCell>
-                    <TableCell>{player.position.replace("_", " ")}</TableCell>
-                    <TableCell className="text-right">{player.goals}</TableCell>
-                    <TableCell className="text-right">{player.assists}</TableCell>
-                    <TableCell className="text-right">{player.yellow_cards}</TableCell>
-                    <TableCell className="text-right">{player.red_cards}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{player.team_name}</TableCell>
+                    <TableCell className="text-xs sm:text-sm">
+                      {player.position.replace("_", " ")}
+                    </TableCell>
+                    <TableCell className="hidden text-right md:table-cell">{player.goals}</TableCell>
+                    <TableCell className="hidden text-right md:table-cell">{player.assists}</TableCell>
+                    <TableCell className="hidden text-right lg:table-cell">{player.yellow_cards}</TableCell>
+                    <TableCell className="hidden text-right lg:table-cell">{player.red_cards}</TableCell>
                   </TableRow>
                 ))
               ) : (

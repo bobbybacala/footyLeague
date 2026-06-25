@@ -17,13 +17,13 @@ export default function LeagueReadyPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center space-y-6 p-6 md:p-8">
+    <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center space-y-6 p-4 md:p-8">
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
         <CheckCircle2 className="h-8 w-8 text-primary" />
       </div>
       <div className="text-center">
         <p className="text-sm font-medium text-primary">Step 6 of 6</p>
-        <h1 className="text-2xl font-bold">League Ready</h1>
+        <h1 className="text-xl font-bold md:text-2xl">League Ready</h1>
         <p className="mt-2 text-muted-foreground">
           Your league is set up and fixtures have been generated. Enter the dashboard to
           begin managing matches.
