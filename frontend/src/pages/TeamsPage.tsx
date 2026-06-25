@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { validateTeamSquad } from "@/lib/teamValidation";
+import { useCanEdit } from "@/context/AppRoleContext";
 import type { PlayerPosition, Team } from "@/types";
 
 function toDraft(player: { name: string; position: PlayerPosition }): SquadPlayerDraft {
@@ -89,6 +90,8 @@ export default function TeamsPage() {
   });
 
   const isConcluded = league?.status === "COMPLETED";
+  const canEdit = useCanEdit();
+  const isReadOnly = isConcluded || !canEdit;
 
   useEffect(() => {
     if (teams && teams.length > 0 && !selectedTeam) {
@@ -284,12 +287,12 @@ export default function TeamsPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight md:text-3xl">Teams</h1>
           <p className="mt-1 text-muted-foreground">
-            {isConcluded
+            {isReadOnly
               ? "View teams and squads"
               : "Manage teams and players — 2+ players including exactly one goalkeeper"}
           </p>
         </div>
-        {!isConcluded && (
+        {!isReadOnly && (
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
             {selectedTeam && hasChanges && (
               <>
@@ -344,7 +347,7 @@ export default function TeamsPage() {
               ) : (
                 <p className="text-sm text-muted-foreground">No teams yet.</p>
               )}
-              {!isConcluded && (
+              {!isReadOnly && (
                 <Button
                   type="button"
                   variant="outline"
@@ -358,7 +361,7 @@ export default function TeamsPage() {
             </CardContent>
           </Card>
 
-          {!isConcluded && selectedTeam && (
+          {!isReadOnly && selectedTeam && (
             <>
               <Button
                 type="button"
@@ -391,28 +394,33 @@ export default function TeamsPage() {
         <div className="space-y-4">
           {selectedTeam ? (
             <>
-              {!isConcluded && squadError && (
+              {!isReadOnly && squadError && (
                 <p className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {squadError}
                 </p>
               )}
 
-              {!isConcluded && (
-                <Card className="border-border/60">
-                  <CardContent className="overflow-x-auto p-0 md:overflow-visible">
-                    <Table>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell className="w-auto min-w-[7rem] font-medium text-foreground md:w-44">
-                            Team Name
-                          </TableCell>
-                          <TableCell className="break-words">{selectedTeam.name}</TableCell>
-                        </TableRow>
-                        <TableRow className="hover:bg-transparent">
-                          <TableCell className="font-medium text-foreground md:pr-12">
-                            Jersey Color
-                          </TableCell>
-                          <TableCell>
+              <Card className="border-border/60">
+                <CardContent className="overflow-x-auto p-0 md:overflow-visible">
+                  <Table>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell className="w-auto min-w-[7rem] font-medium text-foreground md:w-44">
+                          Team Name
+                        </TableCell>
+                        <TableCell className="break-words">{selectedTeam.name}</TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-transparent">
+                        <TableCell className="font-medium text-foreground md:pr-12">
+                          Jersey Color
+                        </TableCell>
+                        <TableCell>
+                          {isReadOnly ? (
+                            <div
+                              className="h-8 w-8 rounded-md border border-border"
+                              style={{ backgroundColor: selectedTeam.jersey_color }}
+                            />
+                          ) : (
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                               <input
                                 type="color"
@@ -421,13 +429,13 @@ export default function TeamsPage() {
                                 className="color-swatch h-8 w-8 shrink-0 cursor-pointer rounded-md border border-border bg-transparent outline-none focus:outline-none focus:ring-0"
                               />
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              )}
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
 
               <Card className="border-border/60">
                 <CardHeader className="pb-3">
@@ -439,12 +447,12 @@ export default function TeamsPage() {
                   ) : (
                     <SquadPanel
                       players={teamPlayers ?? []}
-                      drafts={isConcluded ? undefined : drafts}
+                      drafts={isReadOnly ? undefined : drafts}
                       captainId={captainId}
                       viceCaptainId={viceCaptainId}
                       onCaptainChange={setCaptainId}
                       onViceCaptainChange={setViceCaptainId}
-                      readOnly={isConcluded}
+                      readOnly={isReadOnly}
                       onDraftChange={(pid, patch) =>
                         setDrafts((prev) => ({
                           ...prev,
@@ -452,7 +460,7 @@ export default function TeamsPage() {
                         }))
                       }
                       onDeletePlayer={
-                        isConcluded ? undefined : setDeletePlayerId
+                        isReadOnly ? undefined : setDeletePlayerId
                       }
                       changedPlayerIds={changedPlayerIds}
                     />
@@ -460,7 +468,7 @@ export default function TeamsPage() {
                 </CardContent>
               </Card>
 
-              {!isConcluded && (
+              {!isReadOnly && (
                 <div className="flex justify-end">
                   <Button
                     variant="outline"

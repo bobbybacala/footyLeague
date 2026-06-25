@@ -112,7 +112,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
+        "apps.common.permissions.AppRolePermission",
     ],
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
@@ -124,3 +124,6 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS", "http://localhost:5173"
 ).split(",")
+CORS_ALLOW_CREDENTIALS = True
+
+EDITOR_SECRET = os.getenv("EDITOR_SECRET", "")

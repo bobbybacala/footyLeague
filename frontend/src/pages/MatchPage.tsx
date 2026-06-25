@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCanEdit } from "@/context/AppRoleContext";
 import type { MatchEvent } from "@/types";
 
 type ActionType = "goal" | "yellow" | "red" | null;
@@ -59,6 +60,7 @@ export default function MatchPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canEditApp = useCanEdit();
 
   const [action, setAction] = useState<ActionType>(null);
   const [side, setSide] = useState<"home" | "away">("home");
@@ -312,8 +314,8 @@ export default function MatchPage() {
   const isLive = match.status === "LIVE";
   const isFinished = match.status === "FINISHED";
   const isConcluded = league?.status === "COMPLETED";
-  const isEditable = (isLive || isFinished) && !isConcluded;
-  const canEditJerseys = match.status === "PENDING" && !isConcluded;
+  const isEditable = (isLive || isFinished) && !isConcluded && canEditApp;
+  const canEditJerseys = match.status === "PENDING" && !isConcluded && canEditApp;
 
   const homeTeam = teams?.find((t) => t.id === match.home_team);
   const awayTeam = teams?.find((t) => t.id === match.away_team);
@@ -451,7 +453,7 @@ export default function MatchPage() {
         Back to Matches
       </Button>
 
-      {isFinished && !isConcluded && (
+      {isFinished && !isConcluded && canEditApp && (
         <div className="flex justify-end">
           <Button
             variant="destructive"

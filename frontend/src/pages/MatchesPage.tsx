@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCanEdit } from "@/context/AppRoleContext";
 import type { Match } from "@/types";
 
 function filterByTeam(matches: Match[], search: string): Match[] {
@@ -38,6 +39,7 @@ export default function MatchesPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canEdit = useCanEdit();
   const [search, setSearch] = useState("");
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [confirmMatchId, setConfirmMatchId] = useState<number | null>(null);
@@ -140,6 +142,7 @@ export default function MatchesPage() {
                 <FixtureCard
                   key={match.id}
                   match={match}
+                  showStart={canEdit}
                   onStart={setConfirmMatchId}
                   onContinue={(matchId) => navigate(`/matches/${matchId}`)}
                 />
@@ -170,7 +173,7 @@ export default function MatchesPage() {
                     >
                       View
                     </Button>
-                    {!isConcluded && (
+                    {!isConcluded && canEdit && (
                       <>
                         <Button
                           variant="secondary"

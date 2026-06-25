@@ -11,6 +11,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { leaguesApi } from "@/api/client";
+import { useCanEdit } from "@/context/AppRoleContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -63,6 +64,7 @@ export default function LeagueLayout() {
   const leagueId = Number(id);
   const navigate = useNavigate();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const canEdit = useCanEdit();
 
   const { data: league, isLoading, isFetching } = useQuery({
     queryKey: ["league", leagueId],
@@ -71,10 +73,10 @@ export default function LeagueLayout() {
   });
 
   useEffect(() => {
-    if (league?.status === "DRAFT" && !isFetching) {
+    if (league?.status === "DRAFT" && !isFetching && canEdit) {
       navigate(`/leagues/${leagueId}/setup/teams`, { replace: true });
     }
-  }, [league, leagueId, navigate, isFetching]);
+  }, [league, leagueId, navigate, isFetching, canEdit]);
 
   if (isLoading || league?.status === "DRAFT") {
     return (
@@ -101,6 +103,11 @@ export default function LeagueLayout() {
           {league && (
             <Badge variant="secondary" className="mt-2">
               {league.status}
+            </Badge>
+          )}
+          {!canEdit && (
+            <Badge variant="outline" className="mt-2">
+              View only
             </Badge>
           )}
         </div>
@@ -149,7 +156,10 @@ export default function LeagueLayout() {
           </Sheet>
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{league?.name}</p>
-            <p className="truncate text-xs text-muted-foreground">{league?.venue}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {league?.venue}
+              {!canEdit && " · View only"}
+            </p>
           </div>
         </header>
 

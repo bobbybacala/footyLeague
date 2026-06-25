@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
 import { useToast } from "@/components/ui/toast";
+import { useCanEdit } from "@/context/AppRoleContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,8 +20,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Trash2, Trophy } from "lucide-react";
 import type { League } from "@/types";
 
-function getLeagueRoute(league: League): string {
+function getLeagueRoute(league: League, canEdit: boolean): string {
   if (league.status === "DRAFT") {
+    if (!canEdit) return `/leagues/${league.id}`;
     if (league.team_count < 2) return `/leagues/${league.id}/setup/teams`;
     return `/leagues/${league.id}/setup/players`;
   }
@@ -31,6 +33,7 @@ export default function Home() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canEdit = useCanEdit();
   const setCurrentLeagueId = useLeagueStore((s) => s.setCurrentLeagueId);
   const [deleteLeague, setDeleteLeague] = useState<League | null>(null);
 
@@ -51,7 +54,7 @@ export default function Home() {
 
   const loadLeague = (league: League) => {
     setCurrentLeagueId(league.id);
-    navigate(getLeagueRoute(league));
+    navigate(getLeagueRoute(league, canEdit));
   };
 
   return (
@@ -62,18 +65,26 @@ export default function Home() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
         <p className="mt-2 text-muted-foreground">
-          Create, manage, and track your football leagues
+          {canEdit
+            ? "Create, manage, and track your football leagues"
+            : "View league standings, teams, matches and statistics"}
         </p>
       </div>
 
       <div className="flex w-full flex-col gap-4 sm:flex-row">
-        <Button asChild size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
-          <Link to="/leagues/new">Create New League</Link>
-        </Button>
+        {canEdit && (
+          <Button asChild size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
+            <Link to="/leagues/new">Create New League</Link>
+          </Button>
+        )}
 
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="secondary" size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
+            <Button
+              variant={canEdit ? "secondary" : "default"}
+              size="lg"
+              className="h-auto flex-1 py-4 md:h-11 md:py-2"
+            >
               Load Existing League
             </Button>
           </DialogTrigger>
@@ -101,14 +112,16 @@ export default function Home() {
                         {league.venue} · {league.team_count} teams · {league.status}
                       </p>
                     </button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="mr-2 shrink-0 text-destructive hover:text-destructive"
-                      onClick={() => setDeleteLeague(league)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canEdit && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mr-2 shrink-0 text-destructive hover:text-destructive"
+                        onClick={() => setDeleteLeague(league)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))
               ) : (
@@ -126,8 +139,9 @@ export default function Home() {
           <CardTitle className="text-base">Quick Start</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Create a league, add teams and players, configure settings, generate
-          fixtures, and manage matches with live scoring.
+          {canEdit
+            ? "Create a league, add teams and players, configure settings, generate fixtures, and manage matches with live scoring."
+            : "Load an existing league to browse the dashboard, standings, teams, matches and statistics."}
         </CardContent>
       </Card>
 

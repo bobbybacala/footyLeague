@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCanEdit } from "@/context/AppRoleContext";
 import type { LeagueFormat } from "@/types";
 
 function formatLabel(format: LeagueFormat): string {
@@ -31,6 +32,7 @@ export default function LeagueSettingsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const canEdit = useCanEdit();
 
   const [name, setName] = useState("");
   const [venue, setVenue] = useState("");
@@ -55,6 +57,7 @@ export default function LeagueSettingsPage() {
 
   const hasChanges =
     league &&
+    canEdit &&
     !isConcluded &&
     (name.trim() !== league.name || venue.trim() !== league.venue);
 
@@ -116,6 +119,12 @@ export default function LeagueSettingsPage() {
         </p>
       )}
 
+      {!canEdit && !isConcluded && (
+        <p className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          You are in viewer mode. Settings cannot be changed.
+        </p>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -130,7 +139,7 @@ export default function LeagueSettingsPage() {
               id="league-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              disabled={isConcluded}
+              disabled={isConcluded || !canEdit}
             />
           </div>
           <div>
@@ -139,7 +148,7 @@ export default function LeagueSettingsPage() {
               id="venue"
               value={venue}
               onChange={(e) => setVenue(e.target.value)}
-              disabled={isConcluded}
+              disabled={isConcluded || !canEdit}
             />
           </div>
           <div>
@@ -161,7 +170,7 @@ export default function LeagueSettingsPage() {
         </CardContent>
       </Card>
 
-      {!isConcluded && !isDraft && (
+      {!isConcluded && !isDraft && canEdit && (
         <Card className="border-destructive/40">
           <CardHeader>
             <CardTitle className="text-destructive">Conclude League</CardTitle>

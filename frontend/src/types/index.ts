@@ -1,5 +1,6 @@
 export type LeagueFormat = "SINGLE_ROUND_ROBIN" | "DOUBLE_ROUND_ROBIN";
 export type LeagueStatus = "DRAFT" | "ACTIVE" | "COMPLETED";
+export type AppRole = "editor" | "viewer";
 
 export type PlayerPosition =
   | "GOALKEEPER"

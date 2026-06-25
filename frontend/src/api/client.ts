@@ -1,5 +1,6 @@
 import axios from "axios";
 import type {
+  AppRole,
   Awards,
   FixturePreview,
   GenerateFixturesResponse,
@@ -12,11 +13,42 @@ import type {
   StandingRow,
   Team,
 } from "@/types";
+import { getStoredToken } from "@/lib/authStorage";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
   headers: { "Content-Type": "application/json" },
 });
+
+api.interceptors.request.use((config) => {
+  const token = getStoredToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const authApi = {
+  session: async (): Promise<{ role: AppRole | null }> => {
+    const { data } = await api.get<{ role: AppRole | null }>("/auth/session/");
+    return data;
+  },
+  loginViewer: async (): Promise<{ role: AppRole; token: string }> => {
+    const { data } = await api.post<{ role: AppRole; token: string }>(
+      "/auth/viewer/"
+    );
+    return data;
+  },
+  loginEditor: async (
+    secretKey: string
+  ): Promise<{ role: AppRole; token: string }> => {
+    const { data } = await api.post<{ role: AppRole; token: string }>(
+      "/auth/editor/",
+      { secret_key: secretKey }
+    );
+    return data;
+  },
+};
 
 function unwrapList<T>(data: T[] | PaginatedResponse<T>): T[] {
   if (Array.isArray(data)) return data;
