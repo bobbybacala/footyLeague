@@ -5,6 +5,7 @@ import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
 import { useToast } from "@/components/ui/toast";
 import { useCanEdit } from "@/context/AppRoleContext";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -58,20 +59,26 @@ export default function Home() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 p-4 md:gap-8 md:p-6">
-      <div className="text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 md:mb-4 md:h-14 md:w-14">
-          <Trophy className="h-6 w-6 text-primary md:h-7 md:w-7" />
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
-        <p className="mt-2 text-muted-foreground">
-          {canEdit
-            ? "Create, manage, and track your football leagues"
-            : "View league standings, teams, matches and statistics"}
-        </p>
-      </div>
-
-      <div className="flex w-full flex-col gap-4 sm:flex-row">
+    <>
+      <PageShell
+        variant="standalone"
+        maxWidth="2xl"
+        headerClassName="text-center"
+        header={
+          <>
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 md:mb-4 md:h-14 md:w-14">
+              <Trophy className="h-6 w-6 text-primary md:h-7 md:w-7" />
+            </div>
+            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
+            <p className="mt-2 text-muted-foreground">
+              {canEdit
+                ? "Create, manage, and track your football leagues"
+                : "View league standings, teams, matches and statistics"}
+            </p>
+          </>
+        }
+      >
+        <div className="flex w-full flex-col gap-4 sm:flex-row">
         {canEdit && (
           <Button asChild size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
             <Link to="/leagues/new">Create New League</Link>
@@ -144,6 +151,7 @@ export default function Home() {
             : "Load an existing league to browse the dashboard, standings, teams, matches and statistics."}
         </CardContent>
       </Card>
+      </PageShell>
 
       <Dialog open={!!deleteLeague} onOpenChange={(o) => !o && setDeleteLeague(null)}>
         <DialogContent>
@@ -169,6 +177,6 @@ export default function Home() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

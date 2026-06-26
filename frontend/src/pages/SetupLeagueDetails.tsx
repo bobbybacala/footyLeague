@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -57,13 +58,17 @@ export default function SetupLeagueDetails() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
-      <div>
-        <p className="text-sm font-medium text-primary">Step 1 of 6</p>
-        <h1 className="text-xl font-bold md:text-2xl">League Details</h1>
-        <p className="text-muted-foreground">Edit your league name and venue</p>
-      </div>
-
+    <PageShell
+      variant="standalone"
+      maxWidth="lg"
+      header={
+        <>
+          <p className="text-sm font-medium text-primary">Step 1 of 6</p>
+          <h1 className="text-xl font-bold md:text-2xl">League Details</h1>
+          <p className="text-muted-foreground">Edit your league name and venue</p>
+        </>
+      }
+    >
       <Card>
         <CardHeader>
           <CardTitle>League Details</CardTitle>
@@ -98,6 +103,6 @@ export default function SetupLeagueDetails() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

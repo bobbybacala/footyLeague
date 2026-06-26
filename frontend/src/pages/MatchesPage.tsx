@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageShell } from "@/components/layout/PageShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCanEdit } from "@/context/AppRoleContext";
 import { filterMatchesBySearch, getAssignedMatchIds } from "@/lib/matchSearch";
@@ -147,83 +148,91 @@ export default function MatchesPage() {
   const matchToDelete = finishedMatches?.find((m) => m.id === deleteMatchId) ?? null;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
-          <p className="mt-1 text-muted-foreground">
-            {isConcluded ? "Completed matches" : "Upcoming and completed matches. Assign matches to matchdays before you can start them."}
-          </p>
-        </div>
-        {!isConcluded && canEdit && (
-          <Button
-            className="w-full sm:w-auto"
-            onClick={() => setShowCreateMatchday(true)}
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Matchday
-          </Button>
-        )}
-      </div>
-
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by team name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      <Tabs defaultValue={isConcluded ? "completed" : "upcoming"}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList className="w-full sm:w-auto">
-            {!isConcluded && (
-              <TabsTrigger value="upcoming">Upcoming Matches</TabsTrigger>
-            )}
-            <TabsTrigger value="completed">Completed Matches</TabsTrigger>
-          </TabsList>
-
-          <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              Select matchday
-            </span>
-            <Select value={selectedMatchdayId} onValueChange={setSelectedMatchdayId}>
-              <SelectTrigger className="w-full sm:w-[200px]">
-                <SelectValue placeholder="All matches" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All matches</SelectItem>
-                {matchdaysLoading ? (
-                  <SelectItem value="loading" disabled>
-                    Loading matchdays...
-                  </SelectItem>
-                ) : (
-                  matchdays?.map((day) => (
-                    <SelectItem key={day.id} value={String(day.id)}>
-                      {day.title}
-                    </SelectItem>
-                  ))
+    <>
+      <Tabs defaultValue={isConcluded ? "completed" : "upcoming"} className="flex h-full min-h-0 flex-col">
+        <PageShell
+          header={
+            <div className="space-y-4 md:space-y-5">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
+                  <p className="mt-1 text-muted-foreground">
+                    {isConcluded
+                      ? "Completed matches"
+                      : "Upcoming and completed matches. Assign matches to matchdays before you can start them."}
+                  </p>
+                </div>
+                {!isConcluded && canEdit && (
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={() => setShowCreateMatchday(true)}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Matchday
+                  </Button>
                 )}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+              </div>
 
-        {selectedMatchday && (
-          <div className="mt-4 rounded-lg border border-border/60 bg-card/40 px-4 py-3">
-            <p className="font-medium">{selectedMatchday.title}</p>
-            <p className="text-sm text-muted-foreground">
-              {formatMatchdayDate(selectedMatchday.date)} ·{" "}
-              {selectedMatchday.matches.length} fixture
-              {selectedMatchday.matches.length === 1 ? "" : "s"}
-            </p>
-          </div>
-        )}
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search by team name..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
 
-        {!isConcluded && (
-        <TabsContent value="upcoming">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <TabsList className="w-full sm:w-auto">
+                  {!isConcluded && (
+                    <TabsTrigger value="upcoming">Upcoming Matches</TabsTrigger>
+                  )}
+                  <TabsTrigger value="completed">Completed Matches</TabsTrigger>
+                </TabsList>
+
+                <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+                  <span className="text-xs whitespace-nowrap text-muted-foreground">
+                    Select matchday
+                  </span>
+                  <Select value={selectedMatchdayId} onValueChange={setSelectedMatchdayId}>
+                    <SelectTrigger className="w-full sm:w-[200px]">
+                      <SelectValue placeholder="All matches" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All matches</SelectItem>
+                      {matchdaysLoading ? (
+                        <SelectItem value="loading" disabled>
+                          Loading matchdays...
+                        </SelectItem>
+                      ) : (
+                        matchdays?.map((day) => (
+                          <SelectItem key={day.id} value={String(day.id)}>
+                            {day.title}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {selectedMatchday && (
+                <div className="rounded-lg border border-border/60 bg-card/40 px-4 py-3">
+                  <p className="font-medium">{selectedMatchday.title}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatMatchdayDate(selectedMatchday.date)} ·{" "}
+                    {selectedMatchday.matches.length} fixture
+                    {selectedMatchday.matches.length === 1 ? "" : "s"}
+                  </p>
+                </div>
+              )}
+            </div>
+          }
+          contentClassName="[&>div]:space-y-0"
+        >
+          {!isConcluded && (
+            <TabsContent value="upcoming" className="mt-0">
           {pendingLoading || liveLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -262,10 +271,10 @@ export default function MatchesPage() {
                   : "No upcoming matches."}
             </p>
           )}
-        </TabsContent>
-        )}
+            </TabsContent>
+          )}
 
-        <TabsContent value="completed">
+          <TabsContent value="completed" className="mt-0">
           {finishedLoading ? (
             <Skeleton className="h-48 w-full rounded-xl" />
           ) : displayedFinished.length > 0 ? (
@@ -305,7 +314,8 @@ export default function MatchesPage() {
                   : "No completed matches yet."}
             </p>
           )}
-        </TabsContent>
+          </TabsContent>
+        </PageShell>
       </Tabs>
 
       <MatchDetailsDialog
@@ -362,6 +372,6 @@ export default function MatchesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

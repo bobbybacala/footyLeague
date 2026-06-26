@@ -5,6 +5,7 @@ import { playersApi, teamsApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
 import { validateTeamPlayers } from "@/lib/teamValidation";
 import { SquadPanel } from "@/components/squad/SquadPanel";
+import { PageShell } from "@/components/layout/PageShell";
 import { PlayerForm } from "@/components/player-form/PlayerForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -157,11 +158,16 @@ export default function AddPlayers() {
 
   if (!teams || teams.length < 2) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
-        <div>
-          <p className="text-sm font-medium text-primary">Step 3 of 6</p>
-          <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
-        </div>
+      <PageShell
+        variant="standalone"
+        maxWidth="5xl"
+        header={
+          <>
+            <p className="text-sm font-medium text-primary">Step 3 of 6</p>
+            <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
+          </>
+        }
+      >
         <p className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
           Add at least 2 teams before adding players.
         </p>
@@ -172,31 +178,35 @@ export default function AddPlayers() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Add Teams
         </Button>
-      </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-primary">Step 3 of 6</p>
-          <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
-          <p className="text-sm text-muted-foreground md:text-base">
-            Add players for each team one by one — 2+ players and exactly one
-            goalkeeper per team
-          </p>
+    <PageShell
+      variant="standalone"
+      maxWidth="5xl"
+      header={
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-primary">Step 3 of 6</p>
+            <h1 className="text-xl font-bold md:text-2xl">Add Players</h1>
+            <p className="text-sm text-muted-foreground md:text-base">
+              Add players for each team one by one — 2+ players and exactly one
+              goalkeeper per team
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => navigate(`/leagues/${leagueId}/setup/teams`)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Add Teams
+          </Button>
         </div>
-        <Button
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => navigate(`/leagues/${leagueId}/setup/teams`)}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Add Teams
-        </Button>
-      </div>
-
+      }
+    >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground sm:text-sm">
         <Badge variant="secondary" className="shrink-0">
           Team {teamIndex + 1} of {teams.length}
@@ -304,6 +314,6 @@ export default function AddPlayers() {
           </Button>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

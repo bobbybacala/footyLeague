@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { teamsApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { TeamForm } from "@/components/team-form/TeamForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -121,24 +122,31 @@ export default function AddTeams() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
-        <div>
-          <p className="text-sm font-medium text-primary">Step 2 of 6</p>
-          <h1 className="text-xl font-bold md:text-2xl">Add Teams</h1>
-          <p className="text-sm text-muted-foreground md:text-base">Add at least 2 teams to continue</p>
-        </div>
-        <Button
-          variant="outline"
-          className="w-full sm:w-auto"
-          onClick={() => navigate(`/leagues/${leagueId}/setup/league`)}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Edit League Details
-        </Button>
-      </div>
-
-      <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
+    <>
+      <PageShell
+        variant="standalone"
+        maxWidth="5xl"
+        header={
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-primary">Step 2 of 6</p>
+              <h1 className="text-xl font-bold md:text-2xl">Add Teams</h1>
+              <p className="text-sm text-muted-foreground md:text-base">
+                Add at least 2 teams to continue
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={() => navigate(`/leagues/${leagueId}/setup/league`)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Edit League Details
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         Add all teams here, then continue to add players for each team. Click a team
         name to edit it, or use the color picker to change its jersey.
@@ -259,6 +267,7 @@ export default function AddTeams() {
           Continue to Players
         </Button>
       </div>
+      </PageShell>
 
       <Dialog open={!!deleteTeamId} onOpenChange={(o) => !o && setDeleteTeamId(null)}>
         <DialogContent>
@@ -283,6 +292,6 @@ export default function AddTeams() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

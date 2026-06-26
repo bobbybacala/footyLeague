@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, RotateCcw, Save, Trash2 } from "lucide-react";
 import { leaguesApi, playersApi, teamsApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { PlayerForm } from "@/components/player-form/PlayerForm";
 import { TeamForm } from "@/components/team-form/TeamForm";
 import {
@@ -323,41 +324,44 @@ export default function TeamsPage() {
   const playerToDelete = teamPlayers?.find((p) => p.id === deletePlayerId);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight md:text-3xl">Teams</h1>
-          <p className="mt-1 text-muted-foreground">
-            {isReadOnly
-              ? "View teams and squads"
-              : "Manage teams and players — 2+ players including exactly one goalkeeper"}
-          </p>
-        </div>
-        {!isReadOnly && (
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
-            {selectedTeam && hasChanges && (
-              <>
-                <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowDiscardChangesConfirm(true)}>
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Discard Changes
-                </Button>
-                <Button className="w-full sm:w-auto" onClick={handleSaveClick}>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Changes
-                </Button>
-              </>
-            )}
-            <div className="hidden md:block">
-              <Button className="w-full sm:w-auto" onClick={() => setShowAddTeamModal(true)}>
-                <Plus className="mr-2 h-4 w-4" />
-                Add New team
-              </Button>
+    <>
+      <PageShell
+        header={
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight md:text-3xl">Teams</h1>
+              <p className="mt-1 text-muted-foreground">
+                {isReadOnly
+                  ? "View teams and squads"
+                  : "Manage teams and players — 2+ players including exactly one goalkeeper"}
+              </p>
             </div>
+            {!isReadOnly && (
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+                {selectedTeam && hasChanges && (
+                  <>
+                    <Button variant="outline" className="w-full sm:w-auto" onClick={() => setShowDiscardChangesConfirm(true)}>
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Discard Changes
+                    </Button>
+                    <Button className="w-full sm:w-auto" onClick={handleSaveClick}>
+                      <Save className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </Button>
+                  </>
+                )}
+                <div className="hidden md:block">
+                  <Button className="w-full sm:w-auto" onClick={() => setShowAddTeamModal(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New team
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+        }
+      >
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <div className="space-y-4">
           <Card className="border-border/60">
             <CardHeader className="pb-3">
@@ -529,7 +533,8 @@ export default function TeamsPage() {
             </p>
           )}
         </div>
-      </div>
+        </div>
+      </PageShell>
 
       {/* Dialogs */}
       <Dialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>
@@ -725,6 +730,6 @@ export default function TeamsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

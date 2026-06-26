@@ -4,6 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -33,11 +34,16 @@ export default function CreateLeague() {
   };
 
   return (
-    <div className="mx-auto max-w-lg p-4 md:p-8">
-      <div className="mb-6">
-        <p className="text-sm font-medium text-primary">Step 1 of 6</p>
-        <h1 className="text-xl font-bold md:text-2xl">Create League</h1>
-      </div>
+    <PageShell
+      variant="standalone"
+      maxWidth="lg"
+      header={
+        <>
+          <p className="text-sm font-medium text-primary">Step 1 of 6</p>
+          <h1 className="text-xl font-bold md:text-2xl">Create League</h1>
+        </>
+      }
+    >
       <Card>
         <CardHeader>
           <CardTitle>League Details</CardTitle>
@@ -77,6 +83,6 @@ export default function CreateLeague() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </PageShell>
   );
 }

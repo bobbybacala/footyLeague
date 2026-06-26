@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Goal, RotateCcw, Square, Trash2 } from "lucide-react";
 import { matchesApi, playersApi, teamsApi, leaguesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { EventTimeline } from "@/components/match-card/EventTimeline";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -453,58 +454,70 @@ export default function MatchPage() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 p-4 pb-24 md:p-6 md:pb-28">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="-ml-2"
-        onClick={() => navigate(`/leagues/${match.league}/matches`)}
+    <>
+      <PageShell
+        variant="standalone"
+        maxWidth="4xl"
+        contentClassName={isLive || isFinished ? "pb-24 md:pb-28" : undefined}
+        header={
+          <div className="space-y-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="-ml-2"
+              onClick={() => navigate(`/leagues/${match.league}/matches`)}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Matches
+            </Button>
+
+            {isFinished && !isConcluded && canEditApp && (
+              <div className="flex justify-end">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setShowDeleteMatchConfirm(true)}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Reset Match
+                </Button>
+              </div>
+            )}
+
+            <div className="rounded-xl border border-border bg-card p-4 text-center md:p-8">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground md:text-sm">
+                {match.status}
+              </p>
+              <h1 className="mt-2 text-base font-semibold sm:text-lg md:text-2xl">
+                {match.home_team_name} vs {match.away_team_name}
+              </h1>
+              <p className="mt-3 text-4xl font-bold tracking-tight text-primary sm:text-5xl md:mt-4 md:text-6xl">
+                {displayHomeScore} - {displayAwayScore}
+              </p>
+              <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:mt-6 sm:flex-row sm:gap-6">
+                <div className="flex max-w-full items-center gap-2">
+                  <div
+                    className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
+                    style={{ backgroundColor: homeJersey }}
+                  />
+                  <span className="truncate text-xs text-muted-foreground md:text-sm">
+                    {match.home_team_name}
+                  </span>
+                </div>
+                <div className="flex max-w-full items-center gap-2">
+                  <div
+                    className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
+                    style={{ backgroundColor: awayJersey }}
+                  />
+                  <span className="truncate text-xs text-muted-foreground md:text-sm">
+                    {match.away_team_name}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
       >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Matches
-      </Button>
-
-      {isFinished && !isConcluded && canEditApp && (
-        <div className="flex justify-end">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => setShowDeleteMatchConfirm(true)}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Reset Match
-          </Button>
-        </div>
-      )}
-
-      <div className="rounded-xl border border-border bg-card p-4 text-center md:p-8">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground md:text-sm">
-          {match.status}
-        </p>
-        <h1 className="mt-2 text-base font-semibold sm:text-lg md:text-2xl">
-          {match.home_team_name} vs {match.away_team_name}
-        </h1>
-        <p className="mt-3 text-4xl font-bold tracking-tight text-primary sm:text-5xl md:mt-4 md:text-6xl">
-          {displayHomeScore} - {displayAwayScore}
-        </p>
-        <div className="mt-4 flex flex-col items-center justify-center gap-3 sm:mt-6 sm:flex-row sm:gap-6">
-          <div className="flex max-w-full items-center gap-2">
-            <div
-              className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
-              style={{ backgroundColor: homeJersey }}
-            />
-            <span className="truncate text-xs text-muted-foreground md:text-sm">{match.home_team_name}</span>
-          </div>
-          <div className="flex max-w-full items-center gap-2">
-            <div
-              className="h-5 w-5 shrink-0 rounded-full border border-border md:h-6 md:w-6"
-              style={{ backgroundColor: awayJersey }}
-            />
-            <span className="truncate text-xs text-muted-foreground md:text-sm">{match.away_team_name}</span>
-          </div>
-        </div>
-      </div>
-
       {canEditJerseys && (
         <Card className="border-border/60">
           <CardHeader className="pb-3">
@@ -583,6 +596,8 @@ export default function MatchPage() {
           />
         </CardContent>
       </Card>
+
+      </PageShell>
 
       {isFinished && eventsDirty && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -854,6 +869,6 @@ export default function MatchPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

@@ -2,6 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -37,13 +38,17 @@ export default function GenerateFixturesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
-      <div>
-        <p className="text-sm font-medium text-primary">Step 5 of 6</p>
-        <h1 className="text-xl font-bold md:text-2xl">Generate Fixtures</h1>
-        <p className="text-muted-foreground">Review and confirm fixture generation</p>
-      </div>
-
+    <PageShell
+      variant="standalone"
+      maxWidth="lg"
+      header={
+        <>
+          <p className="text-sm font-medium text-primary">Step 5 of 6</p>
+          <h1 className="text-xl font-bold md:text-2xl">Generate Fixtures</h1>
+          <p className="text-muted-foreground">Review and confirm fixture generation</p>
+        </>
+      }
+    >
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -67,6 +72,6 @@ export default function GenerateFixturesPage() {
       >
         Confirm & Generate Fixtures
       </Button>
-    </div>
+    </PageShell>
   );
 }

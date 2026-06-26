@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { LeagueFormat } from "@/types";
@@ -56,13 +57,17 @@ export default function SetupSettings() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 p-4 md:p-8">
-      <div>
-        <p className="text-sm font-medium text-primary">Step 4 of 6</p>
-        <h1 className="text-xl font-bold md:text-2xl">League Settings</h1>
-        <p className="text-muted-foreground">Configure format for {league?.name}</p>
-      </div>
-
+    <PageShell
+      variant="standalone"
+      maxWidth="lg"
+      header={
+        <>
+          <p className="text-sm font-medium text-primary">Step 4 of 6</p>
+          <h1 className="text-xl font-bold md:text-2xl">League Settings</h1>
+          <p className="text-muted-foreground">Configure format for {league?.name}</p>
+        </>
+      }
+    >
       <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm">
         <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
         League setup is currently in progress. You cannot go back to previous steps.
@@ -149,6 +154,6 @@ export default function SetupSettings() {
       <Button className="w-full" onClick={() => mutation.mutate()} disabled={mutation.isPending}>
         Continue to Generate Fixtures
       </Button>
-    </div>
+    </PageShell>
   );
 }

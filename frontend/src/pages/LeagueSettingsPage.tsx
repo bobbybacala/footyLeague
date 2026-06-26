@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -95,24 +96,28 @@ export default function LeagueSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 md:space-y-8 p-4 md:p-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight md:text-3xl">
-            League Settings
-          </h1>
-          <p className="mt-1 text-muted-foreground">Competition configuration</p>
-        </div>
-        {hasChanges && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => setShowDiscardConfirm(true)}>
-              Discard Changes
-            </Button>
-            <Button onClick={() => setShowSaveConfirm(true)}>Save Changes</Button>
+    <>
+      <PageShell
+        maxWidth="2xl"
+        header={
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight md:text-3xl">
+                League Settings
+              </h1>
+              <p className="mt-1 text-muted-foreground">Competition configuration</p>
+            </div>
+            {hasChanges && (
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" onClick={() => setShowDiscardConfirm(true)}>
+                  Discard Changes
+                </Button>
+                <Button onClick={() => setShowSaveConfirm(true)}>Save Changes</Button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
+        }
+      >
       {isConcluded && (
         <p className="rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
           This league is concluded. All data is read-only.
@@ -190,6 +195,8 @@ export default function LeagueSettingsPage() {
         </Card>
       )}
 
+      </PageShell>
+
       <Dialog open={showSaveConfirm} onOpenChange={setShowSaveConfirm}>
         <DialogContent>
           <DialogHeader>
@@ -259,6 +266,6 @@ export default function LeagueSettingsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
