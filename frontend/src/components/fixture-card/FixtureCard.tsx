@@ -9,6 +9,7 @@ interface FixtureCardProps {
   onContinue?: (matchId: number) => void;
   isStarting?: boolean;
   showStart?: boolean;
+  canStart?: boolean;
 }
 
 export function FixtureCard({
@@ -17,6 +18,7 @@ export function FixtureCard({
   onContinue,
   isStarting,
   showStart = true,
+  canStart = false,
 }: FixtureCardProps) {
   return (
     <Card className="border-border/60 transition-colors hover:border-primary/30">
@@ -33,8 +35,14 @@ export function FixtureCard({
         {showStart && onStart && match.status === "PENDING" && (
           <Button
             className="w-full"
+            variant={canStart ? "default" : "secondary"}
             onClick={() => onStart(match.id)}
-            disabled={isStarting}
+            disabled={isStarting || !canStart}
+            title={
+              !canStart
+                ? "Select a matchday to start this match"
+                : undefined
+            }
           >
             Start Match
           </Button>

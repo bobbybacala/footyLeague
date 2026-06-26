@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi } from "@/api/client";
@@ -10,6 +10,7 @@ import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
 import { MatchDetailsDialog } from "@/components/match-card/MatchDetailsDialog";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getAssignedMatchIds } from "@/lib/matchSearch";
 import type { Match } from "@/types";
 
 export default function LeagueDashboard() {
@@ -49,6 +50,17 @@ export default function LeagueDashboard() {
     queryFn: () => leaguesApi.matches(leagueId, "PENDING"),
     enabled: !!leagueId,
   });
+
+  const { data: matchdays } = useQuery({
+    queryKey: ["matchdays", leagueId],
+    queryFn: () => leaguesApi.matchdays(leagueId),
+    enabled: !!leagueId,
+  });
+
+  const assignedMatchIds = useMemo(
+    () => getAssignedMatchIds(matchdays ?? []),
+    [matchdays]
+  );
 
   const handleMatchStarted = (match: Match) => {
     queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
@@ -124,6 +136,7 @@ export default function LeagueDashboard() {
               <FixtureCard
                 key={match.id}
                 match={match}
+                canStart={assignedMatchIds.has(match.id)}
                 onStart={setConfirmMatchId}
               />
             ))}

@@ -29,7 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCanEdit } from "@/context/AppRoleContext";
-import { filterMatchesBySearch } from "@/lib/matchSearch";
+import { filterMatchesBySearch, getAssignedMatchIds } from "@/lib/matchSearch";
 import type { Match } from "@/types";
 
 function formatMatchdayDate(date: string) {
@@ -96,6 +96,11 @@ export default function MatchesPage() {
     [matchdays, selectedMatchdayId]
   );
 
+  const assignedMatchIds = useMemo(
+    () => getAssignedMatchIds(matchdays ?? []),
+    [matchdays]
+  );
+
   const matchdayMatchIds = useMemo(() => {
     if (!selectedMatchday) return null;
     return new Set(selectedMatchday.matches.map((m) => m.id));
@@ -147,7 +152,7 @@ export default function MatchesPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
           <p className="mt-1 text-muted-foreground">
-            {isConcluded ? "Completed matches" : "Upcoming and completed matches"}
+            {isConcluded ? "Completed matches" : "Upcoming and completed matches. Assign matches to matchdays before you can start them."}
           </p>
         </div>
         {!isConcluded && canEdit && (
@@ -172,7 +177,7 @@ export default function MatchesPage() {
       </div>
 
       <Tabs defaultValue={isConcluded ? "completed" : "upcoming"}>
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <TabsList className="w-full sm:w-auto">
             {!isConcluded && (
               <TabsTrigger value="upcoming">Upcoming Matches</TabsTrigger>
@@ -180,25 +185,30 @@ export default function MatchesPage() {
             <TabsTrigger value="completed">Completed Matches</TabsTrigger>
           </TabsList>
 
-          <Select value={selectedMatchdayId} onValueChange={setSelectedMatchdayId}>
-            <SelectTrigger className="w-full sm:w-[220px]">
-              <SelectValue placeholder="Select a matchday" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All matches</SelectItem>
-              {matchdaysLoading ? (
-                <SelectItem value="loading" disabled>
-                  Loading matchdays...
-                </SelectItem>
-              ) : (
-                matchdays?.map((day) => (
-                  <SelectItem key={day.id} value={String(day.id)}>
-                    {day.title}
+          <div className="flex w-full flex-col gap-1.5 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              Select matchday
+            </span>
+            <Select value={selectedMatchdayId} onValueChange={setSelectedMatchdayId}>
+              <SelectTrigger className="w-full sm:w-[200px]">
+                <SelectValue placeholder="All matches" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All matches</SelectItem>
+                {matchdaysLoading ? (
+                  <SelectItem value="loading" disabled>
+                    Loading matchdays...
                   </SelectItem>
-                ))
-              )}
-            </SelectContent>
-          </Select>
+                ) : (
+                  matchdays?.map((day) => (
+                    <SelectItem key={day.id} value={String(day.id)}>
+                      {day.title}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {selectedMatchday && (
@@ -227,7 +237,18 @@ export default function MatchesPage() {
                   key={match.id}
                   match={match}
                   showStart={canEdit}
-                  onStart={setConfirmMatchId}
+                  canStart={
+                    selectedMatchdayId !== "all" &&
+                    assignedMatchIds.has(match.id)
+                  }
+                  onStart={(matchId) => {
+                    if (
+                      selectedMatchdayId !== "all" &&
+                      assignedMatchIds.has(matchId)
+                    ) {
+                      setConfirmMatchId(matchId);
+                    }
+                  }}
                   onContinue={(matchId) => navigate(`/matches/${matchId}`)}
                 />
               ))}

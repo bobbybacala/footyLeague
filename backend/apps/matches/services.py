@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from apps.common.enums import LeagueStatus, MatchEventType, MatchStatus, PlayerPosition
 from apps.leagues.models import League
-from apps.matches.models import Match, MatchEvent
+from apps.matches.models import Match, MatchEvent, MatchdayFixture
 from apps.players.models import Player
 
 
@@ -104,6 +104,8 @@ def start_match(
 ) -> Match:
     if match.status != MatchStatus.PENDING:
         raise MatchServiceError("Only PENDING matches can be started.")
+    if not MatchdayFixture.objects.filter(match=match).exists():
+        raise MatchServiceError("Assign this match to a matchday before starting.")
     match.home_jersey_color = home_jersey_color or match.home_team.jersey_color
     match.away_jersey_color = away_jersey_color or match.away_team.jersey_color
     match.status = MatchStatus.LIVE

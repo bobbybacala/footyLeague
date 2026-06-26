@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { leaguesApi } from "@/api/client";
 import { FixtureCard } from "@/components/fixture-card/FixtureCard";
 import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getAssignedMatchIds } from "@/lib/matchSearch";
 
 export default function UpcomingFixturesPage() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +18,16 @@ export default function UpcomingFixturesPage() {
     queryKey: ["matches", leagueId, "PENDING"],
     queryFn: () => leaguesApi.matches(leagueId, "PENDING"),
   });
+
+  const { data: matchdays } = useQuery({
+    queryKey: ["matchdays", leagueId],
+    queryFn: () => leaguesApi.matchdays(leagueId),
+  });
+
+  const assignedMatchIds = useMemo(
+    () => getAssignedMatchIds(matchdays ?? []),
+    [matchdays]
+  );
 
   const handleMatchStarted = (match: { id: number }) => {
     queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
@@ -45,6 +56,7 @@ export default function UpcomingFixturesPage() {
             <FixtureCard
               key={match.id}
               match={match}
+              canStart={assignedMatchIds.has(match.id)}
               onStart={setConfirmMatchId}
             />
           ))}
