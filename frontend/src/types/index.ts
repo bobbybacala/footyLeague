@@ -86,6 +86,15 @@ export interface Match {
   events: MatchEvent[];
 }
 
+export interface Matchday {
+  id: number;
+  league: number;
+  title: string;
+  date: string;
+  created_at: string;
+  matches: Match[];
+}
+
 export interface StandingRow {
   position: number;
   team_id: number;

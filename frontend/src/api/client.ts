@@ -7,6 +7,7 @@ import type {
   League,
   LeagueFormat,
   Match,
+  Matchday,
   PaginatedResponse,
   Player,
   PlayerPosition,
@@ -137,6 +138,22 @@ export const leaguesApi = {
   generateFixtures: async (id: number): Promise<GenerateFixturesResponse> => {
     const { data } = await api.post<GenerateFixturesResponse>(
       `/leagues/${id}/generate-fixtures/`
+    );
+    return data;
+  },
+  matchdays: async (id: number): Promise<Matchday[]> => {
+    const { data } = await api.get<Matchday[] | PaginatedResponse<Matchday>>(
+      `/matches/leagues/${id}/matchdays/`
+    );
+    return unwrapList(data);
+  },
+  createMatchday: async (
+    id: number,
+    payload: { title: string; date: string; match_ids: number[] }
+  ): Promise<Matchday> => {
+    const { data } = await api.post<Matchday>(
+      `/matches/leagues/${id}/matchdays/`,
+      payload
     );
     return data;
   },

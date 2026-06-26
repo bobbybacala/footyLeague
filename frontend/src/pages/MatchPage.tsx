@@ -144,6 +144,7 @@ export default function MatchPage() {
     queryClient.invalidateQueries({ queryKey: ["match", matchId] });
     if (match) {
       queryClient.invalidateQueries({ queryKey: ["matches", match.league] });
+      queryClient.invalidateQueries({ queryKey: ["matchdays", match.league] });
       queryClient.invalidateQueries({ queryKey: ["standings", match.league] });
       queryClient.invalidateQueries({ queryKey: ["awards", match.league] });
       queryClient.invalidateQueries({ queryKey: ["league", match.league] });
@@ -221,6 +222,7 @@ export default function MatchPage() {
     onSuccess: () => {
       if (match) {
         queryClient.invalidateQueries({ queryKey: ["matches", match.league] });
+        queryClient.invalidateQueries({ queryKey: ["matchdays", match.league] });
         queryClient.invalidateQueries({ queryKey: ["standings", match.league] });
         queryClient.invalidateQueries({ queryKey: ["league", match.league] });
       }

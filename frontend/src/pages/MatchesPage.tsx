@@ -1,15 +1,23 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { leaguesApi, matchesApi, getErrorMessage } from "@/api/client";
 import { useToast } from "@/components/ui/toast";
 import { MatchCard } from "@/components/match-card/MatchCard";
 import { MatchDetailsDialog } from "@/components/match-card/MatchDetailsDialog";
 import { FixtureCard } from "@/components/fixture-card/FixtureCard";
 import { StartMatchDialog } from "@/components/match-card/StartMatchDialog";
+import { CreateMatchdayDialog } from "@/components/matchday/CreateMatchdayDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -21,16 +29,18 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCanEdit } from "@/context/AppRoleContext";
+import { filterMatchesBySearch } from "@/lib/matchSearch";
 import type { Match } from "@/types";
 
-function filterByTeam(matches: Match[], search: string): Match[] {
-  const q = search.trim().toLowerCase();
-  if (!q) return matches;
-  return matches.filter(
-    (m) =>
-      m.home_team_name.toLowerCase().includes(q) ||
-      m.away_team_name.toLowerCase().includes(q)
-  );
+function formatMatchdayDate(date: string) {
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return parsed.toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export default function MatchesPage() {
@@ -44,6 +54,8 @@ export default function MatchesPage() {
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [confirmMatchId, setConfirmMatchId] = useState<number | null>(null);
   const [deleteMatchId, setDeleteMatchId] = useState<number | null>(null);
+  const [showCreateMatchday, setShowCreateMatchday] = useState(false);
+  const [selectedMatchdayId, setSelectedMatchdayId] = useState("all");
 
   const { data: league } = useQuery({
     queryKey: ["league", leagueId],
@@ -69,18 +81,45 @@ export default function MatchesPage() {
     queryFn: () => leaguesApi.matches(leagueId, "FINISHED"),
   });
 
+  const { data: matchdays, isLoading: matchdaysLoading } = useQuery({
+    queryKey: ["matchdays", leagueId],
+    queryFn: () => leaguesApi.matchdays(leagueId),
+  });
+
   const upcomingMatches = useMemo(
-    () => filterByTeam([...(liveMatches ?? []), ...(pendingMatches ?? [])], search),
-    [liveMatches, pendingMatches, search]
+    () => [...(liveMatches ?? []), ...(pendingMatches ?? [])],
+    [liveMatches, pendingMatches]
   );
 
-  const filteredFinished = useMemo(
-    () => filterByTeam(finishedMatches ?? [], search),
-    [finishedMatches, search]
+  const selectedMatchday = useMemo(
+    () => matchdays?.find((m) => String(m.id) === selectedMatchdayId) ?? null,
+    [matchdays, selectedMatchdayId]
   );
+
+  const matchdayMatchIds = useMemo(() => {
+    if (!selectedMatchday) return null;
+    return new Set(selectedMatchday.matches.map((m) => m.id));
+  }, [selectedMatchday]);
+
+  const displayedUpcoming = useMemo(() => {
+    let base = upcomingMatches;
+    if (matchdayMatchIds) {
+      base = base.filter((m) => matchdayMatchIds.has(m.id));
+    }
+    return filterMatchesBySearch(base, search);
+  }, [upcomingMatches, matchdayMatchIds, search]);
+
+  const displayedFinished = useMemo(() => {
+    let base = finishedMatches ?? [];
+    if (matchdayMatchIds) {
+      base = base.filter((m) => matchdayMatchIds.has(m.id));
+    }
+    return filterMatchesBySearch(base, search);
+  }, [finishedMatches, matchdayMatchIds, search]);
 
   const handleMatchStarted = (match: Match) => {
     queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
+    queryClient.invalidateQueries({ queryKey: ["matchdays", leagueId] });
     setConfirmMatchId(null);
     navigate(`/matches/${match.id}`);
   };
@@ -89,6 +128,7 @@ export default function MatchesPage() {
     mutationFn: (matchId: number) => matchesApi.delete(matchId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["matches", leagueId] });
+      queryClient.invalidateQueries({ queryKey: ["matchdays", leagueId] });
       queryClient.invalidateQueries({ queryKey: ["standings", leagueId] });
       queryClient.invalidateQueries({ queryKey: ["league", leagueId] });
       queryClient.invalidateQueries({ queryKey: ["awards", leagueId] });
@@ -103,11 +143,22 @@ export default function MatchesPage() {
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 p-4 md:p-8">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
-        <p className="mt-1 text-muted-foreground">
-          {isConcluded ? "Completed matches" : "Upcoming and completed matches"}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight md:text-3xl">Matches</h1>
+          <p className="mt-1 text-muted-foreground">
+            {isConcluded ? "Completed matches" : "Upcoming and completed matches"}
+          </p>
+        </div>
+        {!isConcluded && canEdit && (
+          <Button
+            className="w-full sm:w-auto"
+            onClick={() => setShowCreateMatchday(true)}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Create Matchday
+          </Button>
+        )}
       </div>
 
       <div className="relative max-w-md">
@@ -121,12 +172,45 @@ export default function MatchesPage() {
       </div>
 
       <Tabs defaultValue={isConcluded ? "completed" : "upcoming"}>
-        <TabsList>
-          {!isConcluded && (
-            <TabsTrigger value="upcoming">Upcoming Matches</TabsTrigger>
-          )}
-          <TabsTrigger value="completed">Completed Matches</TabsTrigger>
-        </TabsList>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <TabsList className="w-full sm:w-auto">
+            {!isConcluded && (
+              <TabsTrigger value="upcoming">Upcoming Matches</TabsTrigger>
+            )}
+            <TabsTrigger value="completed">Completed Matches</TabsTrigger>
+          </TabsList>
+
+          <Select value={selectedMatchdayId} onValueChange={setSelectedMatchdayId}>
+            <SelectTrigger className="w-full sm:w-[220px]">
+              <SelectValue placeholder="Select a matchday" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All matches</SelectItem>
+              {matchdaysLoading ? (
+                <SelectItem value="loading" disabled>
+                  Loading matchdays...
+                </SelectItem>
+              ) : (
+                matchdays?.map((day) => (
+                  <SelectItem key={day.id} value={String(day.id)}>
+                    {day.title}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {selectedMatchday && (
+          <div className="mt-4 rounded-lg border border-border/60 bg-card/40 px-4 py-3">
+            <p className="font-medium">{selectedMatchday.title}</p>
+            <p className="text-sm text-muted-foreground">
+              {formatMatchdayDate(selectedMatchday.date)} ·{" "}
+              {selectedMatchday.matches.length} fixture
+              {selectedMatchday.matches.length === 1 ? "" : "s"}
+            </p>
+          </div>
+        )}
 
         {!isConcluded && (
         <TabsContent value="upcoming">
@@ -136,9 +220,9 @@ export default function MatchesPage() {
                 <Skeleton key={i} className="h-40 rounded-xl" />
               ))}
             </div>
-          ) : upcomingMatches.length > 0 ? (
+          ) : displayedUpcoming.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {upcomingMatches.map((match) => (
+              {displayedUpcoming.map((match) => (
                 <FixtureCard
                   key={match.id}
                   match={match}
@@ -150,7 +234,11 @@ export default function MatchesPage() {
             </div>
           ) : (
             <p className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
-              {search.trim() ? "No matches match your search." : "No upcoming matches."}
+              {search.trim()
+                ? "No matches match your search."
+                : selectedMatchday
+                  ? "No upcoming fixtures on this matchday."
+                  : "No upcoming matches."}
             </p>
           )}
         </TabsContent>
@@ -159,9 +247,9 @@ export default function MatchesPage() {
         <TabsContent value="completed">
           {finishedLoading ? (
             <Skeleton className="h-48 w-full rounded-xl" />
-          ) : filteredFinished.length > 0 ? (
+          ) : displayedFinished.length > 0 ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {filteredFinished.map((match) => (
+              {displayedFinished.map((match) => (
                 <div key={match.id} className="space-y-2">
                   <MatchCard match={match} onClick={() => setSelectedMatch(match)} />
                   {!isConcluded && canEdit && (
@@ -191,7 +279,9 @@ export default function MatchesPage() {
             <p className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground">
               {search.trim()
                 ? "No matches match your search."
-                : "No completed matches yet."}
+                : selectedMatchday
+                  ? "No completed results on this matchday yet."
+                  : "No completed matches yet."}
             </p>
           )}
         </TabsContent>
@@ -209,6 +299,18 @@ export default function MatchesPage() {
         open={!!confirmMatchId}
         onOpenChange={(open) => !open && setConfirmMatchId(null)}
         onStarted={handleMatchStarted}
+      />
+
+      <CreateMatchdayDialog
+        leagueId={leagueId}
+        pendingMatches={pendingMatches ?? []}
+        matchdays={matchdays ?? []}
+        open={showCreateMatchday}
+        onOpenChange={setShowCreateMatchday}
+        onCreated={(matchday) => {
+          queryClient.invalidateQueries({ queryKey: ["matchdays", leagueId] });
+          setSelectedMatchdayId(String(matchday.id));
+        }}
       />
 
       <Dialog open={!!deleteMatchId} onOpenChange={(o) => !o && setDeleteMatchId(null)}>

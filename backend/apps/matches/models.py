@@ -61,3 +61,33 @@ class MatchEvent(models.Model):
 
     def __str__(self):
         return f"{self.event_type} - {self.player}"
+
+
+class Matchday(models.Model):
+    league = models.ForeignKey(
+        League, on_delete=models.CASCADE, related_name="matchdays"
+    )
+    title = models.CharField(max_length=200)
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-id"]
+
+    def __str__(self):
+        return self.title
+
+
+class MatchdayFixture(models.Model):
+    matchday = models.ForeignKey(
+        Matchday, on_delete=models.CASCADE, related_name="fixtures"
+    )
+    match = models.OneToOneField(
+        Match, on_delete=models.CASCADE, related_name="matchday_fixture"
+    )
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.matchday.title}: {self.match}"

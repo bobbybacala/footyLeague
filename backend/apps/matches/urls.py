@@ -1,5 +1,6 @@
 from django.urls import path
 
+from apps.matches.matchday_views import LeagueMatchdayListCreateView
 from apps.matches.views import (
     EndMatchView,
     GoalView,
@@ -24,6 +25,11 @@ urlpatterns = [
         "<int:pk>/events/<int:event_pk>/remove/",
         RemoveEventView.as_view(),
         name="match-remove-event",
+    ),
+    path(
+        "leagues/<int:league_pk>/matchdays/",
+        LeagueMatchdayListCreateView.as_view(),
+        name="league-matchdays",
     ),
     path(
         "leagues/<int:league_pk>/matches/",
