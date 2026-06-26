@@ -101,10 +101,20 @@ export function SquadPanel({
               isCaptain && "border-primary ring-2 ring-primary/40",
               isVice && !isCaptain && "border-amber-500 ring-2 ring-amber-500/40",
               !isCaptain && !isVice && "border-border",
-              changed && !readOnly && "border-primary/40"
+              changed && !readOnly && "border-primary/40",
+              !readOnly && "cursor-pointer"
             )}
+            onClick={() => {
+              if (readOnly || isCaptain) return;
+              handleCaptainClick(player.id);
+            }}
+            onDoubleClick={(e) => {
+              if (readOnly) return;
+              e.preventDefault();
+              handleViceClick(player.id);
+            }}
           >
-            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex items-center gap-2">
               {readOnly || !editableFields ? (
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <span className="min-w-0 truncate font-medium">{draft.name}</span>
@@ -113,7 +123,10 @@ export function SquadPanel({
                   </span>
                 </div>
               ) : (
-                <div className="flex w-full min-w-0 items-stretch gap-2 sm:flex-1">
+                <div
+                  className="flex min-w-0 flex-1 items-stretch gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Input
                     value={draft.name}
                     onChange={(e) =>
@@ -151,48 +164,57 @@ export function SquadPanel({
                 </div>
               )}
 
-              <div className="flex w-full items-center gap-1 sm:w-auto">
+              {isCaptain && (
                 <button
                   type="button"
                   disabled={readOnly}
-                  onClick={() => handleCaptainClick(player.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCaptainClick(player.id);
+                  }}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-md border text-xs font-bold transition-colors",
-                    isCaptain
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border text-muted-foreground hover:border-primary hover:text-primary",
-                    readOnly && !isCaptain && "opacity-50"
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-xs font-bold transition-colors",
+                    "border-primary bg-primary text-primary-foreground",
+                    readOnly && "cursor-default"
                   )}
                   title="Captain"
                 >
                   C
                 </button>
+              )}
+
+              {isVice && (
                 <button
                   type="button"
                   disabled={readOnly}
-                  onClick={() => handleViceClick(player.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViceClick(player.id);
+                  }}
                   className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-md border text-xs font-bold transition-colors",
-                    isVice
-                      ? "border-amber-500 bg-amber-500 text-black"
-                      : "border-border text-muted-foreground hover:border-amber-500 hover:text-amber-500",
-                    readOnly && !isVice && "opacity-50"
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-md border text-xs font-bold transition-colors",
+                    "border-amber-500 bg-amber-500 text-black",
+                    readOnly && "cursor-default"
                   )}
                   title="Vice Captain"
                 >
                   V
                 </button>
-                {!readOnly && onDeletePlayer && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="ml-auto h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => onDeletePlayer(player.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
+              )}
+
+              {!readOnly && onDeletePlayer && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto h-8 w-8 shrink-0 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeletePlayer(player.id);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </li>
         );
