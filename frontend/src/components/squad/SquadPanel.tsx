@@ -104,7 +104,7 @@ export function SquadPanel({
               changed && !readOnly && "border-primary/40"
             )}
           >
-            <div className="flex flex-row flex-wrap items-center gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
               {readOnly || !editableFields ? (
                 <div className="flex min-w-0 flex-1 items-center gap-2">
                   <span className="min-w-0 truncate font-medium">{draft.name}</span>
@@ -113,13 +113,13 @@ export function SquadPanel({
                   </span>
                 </div>
               ) : (
-                <>
+                <div className="flex w-full min-w-0 items-stretch gap-2 sm:flex-1">
                   <Input
                     value={draft.name}
                     onChange={(e) =>
                       onDraftChange?.(player.id, { name: e.target.value })
                     }
-                    className="min-w-0 flex-1 sm:max-w-xs"
+                    className="h-10 min-w-0 flex-[2]"
                   />
                   <Select
                     value={draft.position}
@@ -129,7 +129,7 @@ export function SquadPanel({
                       })
                     }
                   >
-                    <SelectTrigger className="w-full sm:w-36">
+                    <SelectTrigger className="h-10 min-w-[7.5rem] flex-1">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -148,10 +148,10 @@ export function SquadPanel({
                       ))}
                     </SelectContent>
                   </Select>
-                </>
+                </div>
               )}
 
-              <div className="flex items-center gap-1">
+              <div className="flex w-full items-center gap-1 sm:w-auto">
                 <button
                   type="button"
                   disabled={readOnly}
@@ -182,18 +182,17 @@ export function SquadPanel({
                 >
                   V
                 </button>
+                {!readOnly && onDeletePlayer && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => onDeletePlayer(player.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
-
-              {!readOnly && onDeletePlayer && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto text-destructive hover:text-destructive"
-                  onClick={() => onDeletePlayer(player.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
             </div>
           </li>
         );

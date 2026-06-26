@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { AppRoleProvider } from "@/context/AppRoleContext";
 import { RoleGate } from "@/components/auth/RoleGate";
 import { ProtectedEditorRoute } from "@/components/auth/ProtectedEditorRoute";
+import { ApiLoadingOverlay } from "@/components/ui/api-loading-overlay";
 import LeagueLayout from "@/components/layout/LeagueLayout";
 import Home from "@/pages/Home";
 import CreateLeague from "@/pages/CreateLeague";
@@ -38,6 +39,7 @@ function DashboardRoute() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <ApiLoadingOverlay />
       <TooltipProvider>
         <ToastProvider>
           <AppRoleProvider>

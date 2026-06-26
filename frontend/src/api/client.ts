@@ -14,6 +14,7 @@ import type {
   Team,
 } from "@/types";
 import { getStoredToken } from "@/lib/authStorage";
+import { startApiLoading, stopApiLoading } from "@/lib/apiLoading";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
@@ -21,12 +22,24 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  startApiLoading();
   const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => {
+    stopApiLoading();
+    return response;
+  },
+  (error) => {
+    stopApiLoading();
+    return Promise.reject(error);
+  }
+);
 
 export const authApi = {
   session: async (): Promise<{ role: AppRole | null }> => {
