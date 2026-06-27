@@ -39,7 +39,6 @@ function DashboardRoute() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ApiLoadingOverlay />
       <TooltipProvider>
         <ToastProvider>
           <AppRoleProvider>
@@ -117,6 +116,7 @@ export default function App() {
           </AppRoleProvider>
         </ToastProvider>
       </TooltipProvider>
+      <ApiLoadingOverlay />
     </QueryClientProvider>
   );
 }

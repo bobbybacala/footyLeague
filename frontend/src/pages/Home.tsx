@@ -5,7 +5,7 @@ import { leaguesApi, getErrorMessage } from "@/api/client";
 import { useLeagueStore } from "@/store/leagueStore";
 import { useToast } from "@/components/ui/toast";
 import { useCanEdit } from "@/context/AppRoleContext";
-import { PageShell } from "@/components/layout/PageShell";
+import { useApiLoading } from "@/components/ui/api-loading-overlay";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -35,6 +35,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const canEdit = useCanEdit();
+  const apiLoading = useApiLoading();
   const setCurrentLeagueId = useLeagueStore((s) => s.setCurrentLeagueId);
   const [deleteLeague, setDeleteLeague] = useState<League | null>(null);
 
@@ -58,30 +59,33 @@ export default function Home() {
     navigate(getLeagueRoute(league, canEdit));
   };
 
+  const interactionsDisabled = apiLoading || isLoading;
+
   return (
-    <>
-      <PageShell
-        variant="standalone"
-        maxWidth="2xl"
-        headerClassName="text-center"
-        header={
-          <>
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 md:mb-4 md:h-14 md:w-14">
-              <Trophy className="h-6 w-6 text-primary md:h-7 md:w-7" />
-            </div>
-            <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
-            <p className="mt-2 text-muted-foreground">
-              {canEdit
-                ? "Create, manage, and track your football leagues"
-                : "View league standings, teams, matches and statistics"}
-            </p>
-          </>
-        }
-      >
-        <div className="flex w-full flex-col gap-4 sm:flex-row">
+    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 p-4 md:gap-8 md:p-6">
+      <div className="text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 md:mb-4 md:h-14 md:w-14">
+          <Trophy className="h-6 w-6 text-primary md:h-7 md:w-7" />
+        </div>
+        <h1 className="text-3xl font-bold tracking-tight md:text-4xl">Football League</h1>
+        <p className="mt-2 text-muted-foreground">
+          {canEdit
+            ? "Create, manage, and track your football leagues"
+            : "View league standings, teams, matches and statistics"}
+        </p>
+      </div>
+
+      <div className="flex w-full flex-col gap-4 sm:flex-row">
         {canEdit && (
-          <Button asChild size="lg" className="h-auto flex-1 py-4 md:h-11 md:py-2">
-            <Link to="/leagues/new">Create New League</Link>
+          <Button
+            asChild
+            size="lg"
+            className="h-auto flex-1 py-4 md:h-11 md:py-2"
+            disabled={interactionsDisabled}
+          >
+            <Link to="/leagues/new" tabIndex={interactionsDisabled ? -1 : undefined}>
+              Create New League
+            </Link>
           </Button>
         )}
 
@@ -91,6 +95,7 @@ export default function Home() {
               variant={canEdit ? "secondary" : "default"}
               size="lg"
               className="h-auto flex-1 py-4 md:h-11 md:py-2"
+              disabled={interactionsDisabled}
             >
               Load Existing League
             </Button>
@@ -113,6 +118,7 @@ export default function Home() {
                     <button
                       onClick={() => loadLeague(league)}
                       className="min-w-0 flex-1 p-4 text-left hover:bg-secondary"
+                      disabled={apiLoading}
                     >
                       <p className="font-medium">{league.name}</p>
                       <p className="text-sm text-muted-foreground">
@@ -125,6 +131,7 @@ export default function Home() {
                         size="sm"
                         className="mr-2 shrink-0 text-destructive hover:text-destructive"
                         onClick={() => setDeleteLeague(league)}
+                        disabled={apiLoading}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -151,7 +158,6 @@ export default function Home() {
             : "Load an existing league to browse the dashboard, standings, teams, matches and statistics."}
         </CardContent>
       </Card>
-      </PageShell>
 
       <Dialog open={!!deleteLeague} onOpenChange={(o) => !o && setDeleteLeague(null)}>
         <DialogContent>
@@ -177,6 +183,6 @@ export default function Home() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
